@@ -6,6 +6,14 @@ sits half-assembled on the deadline. Everything below is organized around that.
 
 ---
 
+> **PIVOT (2026-09-07, later): TorQ is a mechanic's shop assistant.** The belly is a
+> hinged **screen**, there is **no gripper** (the mouth-gripper section below is
+> superseded), arms are 1 DOF, and **voice is now v1-critical**. Read `CONCEPT.md`
+> first. The DOF explainer, the irreversibility guide, the ordering advice, the
+> do-not-do list, and the week-10 freeze below all still stand.
+
+---
+
 ## The one-paragraph version
 
 Order every part in week 1 (shipping is your biggest hidden risk). Build the head
@@ -85,7 +93,14 @@ things that break. Add options only where you have a concrete idea you might use
 
 ---
 
-## The mouth is the gripper (supersedes the asymmetric-arm plan)
+## ~~The mouth is the gripper~~ — SUPERSEDED, see `CONCEPT.md`
+
+*The mouth gripper is dead along with all manipulation. Kept below because the
+reasoning — that reaching DOF is what costs weeks — is exactly why the current
+design has no gripper at all. The eye-in-hand argument now applies to the head
+camera filming your work.*
+
+### Original reasoning
 
 Your MicroDuck observation is correct and it's the highest-value change available.
 
@@ -148,9 +163,11 @@ the eyes, drooping when sad. That is a full expressive vocabulary.
 | **5** | Power. Battery pack, dual buck rails, bulk caps. Motors + drivers on the bench. | Servos slam to position and the Pi does not reboot. |
 | **6** | Drivetrain: tracks, sprockets, closed-loop velocity from encoders, web joystick. | It drives straight, and cliff sensors stop it at a table edge. |
 | **7** | Chassis integration — head onto base, all wiring, battery in, untethered. | It drives around the room under its own power with a living head. |
+| **7.5** | **Belly screen + hinge + local web app.** Video playback via yt-dlp/mpv, timers. | You can watch a how-to on its belly. |
+| **8.5** | **Voice: wake word + ~15 command grammar + push-to-talk button.** | You pause a video with greasy hands. |
 | **8** | **Slack week.** Something will have gone wrong by now. This week absorbs it. | Back on schedule. |
-| **9** | Affect system on real hardware: drives decay, behaviors compete, it acts unprompted. | It does something you didn't tell it to do, and it reads as intentional. |
-| **10** | Jaw + arms. Mouth grab behavior. Backdrive teaching (pose it by hand, it records). **FEATURE FREEZE at the end of this week.** | It picks up a sock. |
+| **9** | Affect system on real hardware, pointed at the job. | It does something you didn't tell it to do, and it reads as intentional. |
+| **10** | Arms (1 DOF each) + work light + magnetic parts tray. Job log / reassembly gallery. **FEATURE FREEZE at the end of this week.** | It films a teardown and plays the steps back in reverse. |
 | **11** | Reliability only. Fix every crash, every loose connector, every servo that overheats. Battery life measurement. Cable management. | It runs 30 minutes unattended without intervention. |
 | **12** | Polish, shell cosmetics, README, demo video. | Done. |
 
