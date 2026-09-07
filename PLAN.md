@@ -157,19 +157,49 @@ the eyes, drooping when sad. That is a full expressive vocabulary.
 | Week | Work | Done when |
 |---|---|---|
 | **1** | **ORDER EVERYTHING** (see below). Start CAD in build123d. | Parts are paid for. Nothing else matters in week 1. |
-| **2** | CAD the head and neck. Write the software skeleton — event bus, affect/drive system, behavior arbitration — tested with a fake robot, no hardware. | Drive system runs in a terminal and prints what it *would* do. |
-| **3** | Parts arrive. Bench rig: Pi + Pico + one servo + one eye on a wall supply. Prove the USB protocol and the servo bus. | You can command a servo angle from Python on the Pi. |
-| **4** | Head assembled on the bench: 3 DOF, both eyes animated, Perlin idle motion, blinking. | **The head feels alive sitting on your desk.** Motivational checkpoint. |
-| **5** | Power. Battery pack, dual buck rails, bulk caps. Motors + drivers on the bench. | Servos slam to position and the Pi does not reboot. |
-| **6** | Drivetrain: tracks, sprockets, closed-loop velocity from encoders, web joystick. | It drives straight, and cliff sensors stop it at a table edge. |
-| **7** | Chassis integration — head onto base, all wiring, battery in, untethered. | It drives around the room under its own power with a living head. |
-| **7.5** | **Belly screen + hinge + local web app.** Video playback via yt-dlp/mpv, timers. | You can watch a how-to on its belly. |
-| **8.5** | **Voice: wake word + ~15 command grammar + push-to-talk button.** | You pause a video with greasy hands. |
-| **8** | **Slack week.** Something will have gone wrong by now. This week absorbs it. | Back on schedule. |
-| **9** | Affect system on real hardware, pointed at the job. | It does something you didn't tell it to do, and it reads as intentional. |
-| **10** | Arms (1 DOF each) + work light + magnetic parts tray. Job log / reassembly gallery. **FEATURE FREEZE at the end of this week.** | It films a teardown and plays the steps back in reverse. |
-| **11** | Reliability only. Fix every crash, every loose connector, every servo that overheats. Battery life measurement. Cable management. | It runs 30 minutes unattended without intervention. |
+| **2** | CAD head, neck, belly hinge. Build the **local web app skeleton** (player, timer, job log) in a browser on your laptop — no hardware needed. | The belly UI works on your desk, against fake data. |
+| **3** | Parts arrive. Bench rig: Pi + Pico + one servo + one eye on a wall supply. Prove the USB protocol and servo bus. | You can command a servo angle from Python on the Pi. |
+| **4** | Head assembled on the bench: 3 DOF, both eyes, Perlin idle motion, blinking. | **The head feels alive on your desk.** Motivational checkpoint. |
+| **5** | Power. Battery, dual buck rails, bulk caps. Motors + drivers on the bench. | Servos slam to position and the Pi does not reboot. |
+| **6** | Drivetrain: tracks, closed-loop velocity, cliff sensors, web joystick. | It drives straight and stops at a table edge. |
+| **7** | Chassis integration — head on base, wiring, battery in, untethered. | It drives around the shop with a living head. |
+| **8** | **SLACK WEEK.** Something will have gone wrong by now. | Back on schedule. |
+| **9** | **Belly: screen, hinge, counterbalance.** Web app on the real panel. Video playback via `yt-dlp` + `mpv`. Timers. | You watch a how-to on its belly. |
+| **10** | **Voice** (wake word + ~15 command grammar + push-to-talk button). **Filming + job log + reverse-order reassembly gallery.** Arms, work light, magnetic tray. **FEATURE FREEZE at the end of this week.** | You pause a video with greasy hands, and it plays your teardown back in reverse. |
+| **11** | Reliability only. Every crash, loose connector, overheating servo. Battery life measured. Cable management. | It runs a full job unattended without intervention. |
 | **12** | Polish, shell cosmetics, README, demo video. | Done. |
+
+### The pivot costs you the affect system in v1 — take the trade
+
+Adding the screen and voice is roughly +1.5 weeks; deleting the jaw, grippers and
+four arm joints gives back about 1. That does not quite balance, and the honest
+place to find the rest is the **drive/affect system**, which moves to v2.
+
+What survives in v1 is the cheap 80%: **Perlin idle motion, blinking, and look-at**
+(week 4 and week 7). That is most of what makes it feel alive. What moves out is
+**behavior arbitration** — competing drives, acting unprompted. That's charm, and
+charm is exactly what you defer when the product has a job and a deadline.
+
+**Do not** try to keep it by deleting week 8.
+
+### If you fall behind, cut in this exact order
+
+Week 10 is the crunch week. Decide the sacrifice order **now**, while you're calm,
+not in week 11 while you're not. Cut from the top:
+
+1. **Video filming** -> keep only **photo-per-step**. Voice "photo", timestamp, job
+   log, reverse-order gallery. This is 80% of the reassembly value for 20% of the
+   work, and it never drops a frame or fills a disk.
+2. **Torque spec lookup** -> ship the local user-editable table only, no web query.
+   Less impressive, more trustworthy, and it works with no WiFi.
+3. **Motorized belly hinge** -> friction hinge you set by hand. Design the boss to
+   accept the servo later. (This is the "buy the option" rule doing its job.)
+4. **Arms** -> print them static. They're two servos of pure charm; they go last
+   because they're also the cheapest thing on this list to keep.
+5. **Voice** -> push-to-talk button plus on-screen buttons only.
+
+Cutting #5 hurts most because hands-free *is* the product — which is exactly why
+it's last, and why everything above it is negotiable.
 
 **Week 8 is deliberately empty.** If you don't need it, you're a week ahead. If you
 delete it to add features, you have no schedule at all — you have a wish.
