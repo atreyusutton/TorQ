@@ -166,7 +166,7 @@ the eyes, drooping when sad. That is a full expressive vocabulary.
 | **7** | Chassis integration — head on base, wiring, battery in, untethered. | It drives around the shop with a living head. |
 | **8** | **SLACK WEEK.** Something will have gone wrong by now. | Back on schedule. |
 | **9** | **Belly: screen, hinge, counterbalance.** Port the week-2 search onto the real panel. | You ask it for a spec and read the manual page off its belly. |
-| **10** | Video playback (`yt-dlp` + `mpv`), timers/counters, voice commands + push-to-talk. **FEATURE FREEZE at the end of this week.** | It plays a how-to and you control it without touching it. |
+| **10** | **LLM spec lookup with native citations (`LLM.md`) — first.** Then voice + push-to-talk, then video playback. **FEATURE FREEZE at the end of this week.** | You ask in plain English and get the number *and* the page it came from. |
 | **11** | Reliability only. Every crash, loose connector, overheating servo. Battery life measured. Cable management. | It runs a full job unattended without intervention. |
 | **12** | Polish, shell cosmetics, README, demo video. | Done. |
 
@@ -202,13 +202,13 @@ not. Cut from the top:
 
 1. **Video playback** -> local files only, no YouTube search. `mpv` on a file is
    trivial; search, download and caching is the fiddly part.
-2. **The LLM summary line** -> pure retrieval. Show the manual page with no
-   plain-English answer over it. Slightly less magic, still the whole point, and it
-   removes the network dependency entirely.
-3. **Motorized belly hinge** -> friction hinge you set by hand. Design the boss to
+2. **Photo job log** -> already a stretch; drop it without ceremony.
+3. **Voice input** -> push-to-talk button plus on-screen buttons only.
+4. **Motorized belly hinge** -> friction hinge you set by hand. Design the boss to
    accept the servo later. (The buy-the-option rule doing its job.)
-4. **Voice input** -> push-to-talk button plus on-screen buttons only.
-5. **Photo job log** -> already a stretch; drop it without ceremony.
+5. **The LLM** -> fall back to the offline path: pre-extracted spec tables plus the
+   retrieved page image. **Cut this last** — it's the feature you said you most want,
+   and per `LLM.md` it degrades to something that still works rather than to nothing.
 
 Note what is *not* on this list: the manual search itself, and the screen. Those are
 the product. Everything above exists to be sacrificed for them.

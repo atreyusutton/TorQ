@@ -30,19 +30,25 @@ That is still a genuinely useful shop tool and a charming object on your bench. 
 everything after week 9 fails, you shipped something real. **This is the definition
 of acceptable, and the schedule puts it three weeks before the deadline.**
 
-### Tier 1 — THE TARGET. Week 10, then freeze.
+### Tier 1 — THE TARGET. Week 10, then freeze. **In this order.**
 
-- **Voice commands** + push-to-talk (hands-free is the dream, not the requirement)
-- **YouTube playback** via `yt-dlp` + `mpv`
-- **LLM summary line** over the retrieved manual page, with citation
+- **1a. The LLM** — natural-language spec lookup answering off the manual page, with
+  **native API citations** giving the exact page number. See `LLM.md`. This is the
+  priority; it goes first and it is cut last.
+- **1b. Voice commands** + push-to-talk
+- **1c. YouTube playback** via `yt-dlp` + `mpv`
 
-Each of these is **independently droppable**. None of them breaks anything below it.
-That is the whole point of the ordering — Tier 1 is three separate bets, not one.
+Each is **independently droppable** and none breaks anything below it — Tier 1 is
+three separate bets, not one. The ordering is what matters: if only one of the three
+lands, it should be the LLM.
 
 ### Tier 2 — IF YOU'RE AHEAD. Week 8 slack, or post-deadline.
 
 `piper` TTS for reading specs aloud · OBD-II integration · VIN scan · photo job log ·
-vision-model table extraction · the drive/affect personality system
+the drive/affect personality system
+
+*(Vision-model table extraction moved **up** — it's laptop-side ingest work with no
+hardware dependency, so it can start from week 2. See `LLM.md`.)*
 
 ---
 
