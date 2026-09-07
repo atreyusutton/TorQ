@@ -7,10 +7,11 @@ sits half-assembled on the deadline. Everything below is organized around that.
 ---
 
 > **PIVOT (2026-09-07, later): TorQ is a mechanic's shop assistant.** The belly is a
-> hinged **screen**, there is **no gripper** (the mouth-gripper section below is
-> superseded), arms are 1 DOF, and **voice is now v1-critical**. Read `CONCEPT.md`
-> first. The DOF explainer, the irreversibility guide, the ordering advice, the
-> do-not-do list, and the week-10 freeze below all still stand.
+> hinged **screen**, there are **no arms and no gripper** (the mouth-gripper section
+> below is superseded), and the product is **searchable service manuals with the page
+> shown**. **4 servos total.** Read `CONCEPT.md` first. The DOF explainer, the
+> irreversibility guide, the ordering advice, the do-not-do list, and the week-10
+> freeze below all still stand.
 
 ---
 
@@ -157,23 +158,35 @@ the eyes, drooping when sad. That is a full expressive vocabulary.
 | Week | Work | Done when |
 |---|---|---|
 | **1** | **ORDER EVERYTHING** (see below). Start CAD in build123d. | Parts are paid for. Nothing else matters in week 1. |
-| **2** | CAD head, neck, belly hinge. Build the **local web app skeleton** (player, timer, job log) in a browser on your laptop — no hardware needed. | The belly UI works on your desk, against fake data. |
+| **2** | **Manual ingest + search, entirely on your laptop.** PDF -> page PNGs -> OCR -> embeddings -> sqlite -> query. Plus the web app skeleton. | **You can type "2015 Civic lug torque" and get the right manual page.** No robot required. |
 | **3** | Parts arrive. Bench rig: Pi + Pico + one servo + one eye on a wall supply. Prove the USB protocol and servo bus. | You can command a servo angle from Python on the Pi. |
-| **4** | Head assembled on the bench: 3 DOF, both eyes, Perlin idle motion, blinking. | **The head feels alive on your desk.** Motivational checkpoint. |
+| **4** | Head assembled on the bench: 3 DOF, eyes, LED ring, Perlin idle motion, blinking. | **The head feels alive on your desk.** Motivational checkpoint. |
 | **5** | Power. Battery, dual buck rails, bulk caps. Motors + drivers on the bench. | Servos slam to position and the Pi does not reboot. |
-| **6** | Drivetrain: tracks, closed-loop velocity, cliff sensors, web joystick. | It drives straight and stops at a table edge. |
+| **6** | Drivetrain: tracks, closed-loop velocity, cliff sensors, web joystick. Magnet sled + parts tray. | It drives straight, stops at a table edge, and picks up a dropped screw. |
 | **7** | Chassis integration — head on base, wiring, battery in, untethered. | It drives around the shop with a living head. |
 | **8** | **SLACK WEEK.** Something will have gone wrong by now. | Back on schedule. |
-| **9** | **Belly: screen, hinge, counterbalance.** Web app on the real panel. Video playback via `yt-dlp` + `mpv`. Timers. | You watch a how-to on its belly. |
-| **10** | **Voice** (wake word + ~15 command grammar + push-to-talk button). **Filming + job log + reverse-order reassembly gallery.** Arms, work light, magnetic tray. **FEATURE FREEZE at the end of this week.** | You pause a video with greasy hands, and it plays your teardown back in reverse. |
+| **9** | **Belly: screen, hinge, counterbalance.** Port the week-2 search onto the real panel. | You ask it for a spec and read the manual page off its belly. |
+| **10** | Video playback (`yt-dlp` + `mpv`), timers/counters, voice commands + push-to-talk. **FEATURE FREEZE at the end of this week.** | It plays a how-to and you control it without touching it. |
 | **11** | Reliability only. Every crash, loose connector, overheating servo. Battery life measured. Cable management. | It runs a full job unattended without intervention. |
 | **12** | Polish, shell cosmetics, README, demo video. | Done. |
 
-### The pivot costs you the affect system in v1 — take the trade
+### Why the main feature is in week 2
 
-Adding the screen and voice is roughly +1.5 weeks; deleting the jaw, grippers and
-four arm joints gives back about 1. That does not quite balance, and the honest
-place to find the rest is the **drive/affect system**, which moves to v2.
+Manual search needs **no robot hardware at all** — it's a laptop program. So it goes
+as early as possible, for two reasons:
+
+1. **It's the riskiest software in the project.** Torque specs live in tables, and
+   text extraction mangles tables. Finding that out in week 2 leaves ten weeks to
+   solve it. Finding out in week 9 ends the project.
+2. It's the whole product. If it doesn't work, you want to know before you've spent
+   $450 and printed a chassis around it.
+
+Everything in weeks 3–8 is a *body for the thing you already built in week 2.*
+
+### The affect system still moves to v2 — take the trade
+
+Dropping the arms bought back real time, and it went straight into the manual
+library rather than into slack. The **drive/affect system** stays in v2.
 
 What survives in v1 is the cheap 80%: **Perlin idle motion, blinking, and look-at**
 (week 4 and week 7). That is most of what makes it feel alive. What moves out is
@@ -184,31 +197,33 @@ charm is exactly what you defer when the product has a job and a deadline.
 
 ### If you fall behind, cut in this exact order
 
-Week 10 is the crunch week. Decide the sacrifice order **now**, while you're calm,
-not in week 11 while you're not. Cut from the top:
+Decide the sacrifice order **now**, while you're calm, not in week 11 while you're
+not. Cut from the top:
 
-1. **Video filming** -> keep only **photo-per-step**. Voice "photo", timestamp, job
-   log, reverse-order gallery. This is 80% of the reassembly value for 20% of the
-   work, and it never drops a frame or fills a disk.
-2. **Torque spec lookup** -> ship the local user-editable table only, no web query.
-   Less impressive, more trustworthy, and it works with no WiFi.
+1. **Video playback** -> local files only, no YouTube search. `mpv` on a file is
+   trivial; search, download and caching is the fiddly part.
+2. **The LLM summary line** -> pure retrieval. Show the manual page with no
+   plain-English answer over it. Slightly less magic, still the whole point, and it
+   removes the network dependency entirely.
 3. **Motorized belly hinge** -> friction hinge you set by hand. Design the boss to
-   accept the servo later. (This is the "buy the option" rule doing its job.)
-4. **Arms** -> print them static. They're two servos of pure charm; they go last
-   because they're also the cheapest thing on this list to keep.
-5. **Voice** -> push-to-talk button plus on-screen buttons only.
+   accept the servo later. (The buy-the-option rule doing its job.)
+4. **Voice input** -> push-to-talk button plus on-screen buttons only.
+5. **Photo job log** -> already a stretch; drop it without ceremony.
 
-Cutting #5 hurts most because hands-free *is* the product — which is exactly why
-it's last, and why everything above it is negotiable.
+Note what is *not* on this list: the manual search itself, and the screen. Those are
+the product. Everything above exists to be sacrificed for them.
 
-**Week 8 is deliberately empty.** If you don't need it, you're a week ahead. If you
-delete it to add features, you have no schedule at all — you have a wish.
+### If you're AHEAD, add in this order
 
-### The feature freeze is the most important line in this document
+Week 8 slack survives more often than people expect. Spend it on these, not on
+something new:
 
-At the end of week 10, the feature list is closed. Anything not working by then
-goes in a `V2.md` file and you feel good about it. The last two weeks are for
-making what exists *reliable*, which is the difference between a project and a demo.
+1. **`piper` TTS for reading specs aloud** (~2 days) — genuinely useful when you're
+   under a car and can't see the belly. It must speak the number *and* the source.
+2. **Photo-per-step job log** — reverse-order reassembly gallery.
+3. **Vision-model table extraction at ingest** — turns manual pages into structured
+   torque rows. Big upgrade, entirely optional.
+4. **Drive/affect system** — the personality layer from `BRAINSTORM.md`.
 
 ---
 

@@ -1,225 +1,185 @@
 # TorQ — The Mechanic's Assistant
 
-**Pivot, 2026-09-07.** TorQ is no longer a generic pet robot. It's a shop assistant
-that happens to have a personality. The name was right all along: **TorQ = torque specs.**
+**TorQ = torque specs.** A tracked shop assistant with a hinged screen belly, an
+articulated head, and a library of your service manuals it can actually cite.
 
 ---
 
-## The form (confirmed)
+## Form (locked)
 
-- **Tracks as feet** — confirmed, unchanged. Wall-E silhouette, solved locomotion.
-- **Head with camera** — 3 DOF (pan, neck tilt, head tilt). It films, it looks at you,
-  it looks at what you're working on.
-- **Belly on a hinge, like Wall-E** — but the belly is a **screen**, and the hinge
-  tilts it to your eyeline.
+- **Tracks as feet** — confirmed.
+- **Head** — 3 DOF (pan, neck tilt, head tilt). Camera + work light. All the
+  movement in the robot lives here.
+- **Hinged belly screen** — tilts to your eyeline. Wall-E silhouette preserved.
+- **No arms.** No gripper. No scoop.
+- **Magnets** for picking up hardware (see below).
 
----
-
-## Decision: screen, not scoop. Kill the pickup idea entirely.
-
-You floated both. They compete for the same real estate, and for this product the
-screen wins overwhelmingly.
-
-**Why the scoop dies:**
-- Scooping works on socks and marbles. In a garage the things you want moved are
-  heavy, greasy, and irregular. A tracked robot with a ~150g payload is not moving
-  your parts, and pretending otherwise wastes weeks.
-- It costs motors, alignment problems, and failure modes — on a 12-week clock.
-- It competes with the screen for the entire front of the robot.
-
-**Why the hinge survives anyway, with a *better* reason than it had before:**
-
-A robot sitting on the garage floor needs to angle its display steeply up at you.
-A robot on the bench needs it near vertical. A fixed screen is unreadable half the
-time. So the hinge earns its motor as an **ergonomic** feature, not a storage one —
-and it preserves the Wall-E belly-opening silhouette you wanted.
-
-Bonus: the screen tilting up to face you when you speak is the single most *alive*
-moment in the whole design, and it's also the robot's primary interface. That's a
-rare case where charm and function are the same motor.
-
-**What you lose:** physical interaction, which is where a lot of pet charm lived.
-**Mitigation:** the head, the light, and the arms carry the charm now. And a
-**magnetic parts tray on the top deck** gives you the "holds things" feeling for
-$0 and zero motors — while solving a mechanic's actual #1 annoyance, which is
-losing fasteners. You drop bolts in from standing height without bending down or
-aiming. Do this.
-
----
-
-## The arms
-
-You said stationary or simple. Agreed — and here's where I'd land.
-
-### The options
-
-| | What it is | Servos | Verdict |
-|---|---|---|---|
-| A | Fully static, printed solid | 0 | Cheapest, but reads as *machine*, not creature |
-| B | Static shell, **friction ball joints** you pose by hand | 0 | Good. Free "hold this" posture |
-| C | **1 powered DOF (shoulder pitch) + friction joint below** | 2 | **Recommended** |
-| D | 2 powered DOF per arm (the old plan) | 4 | Not worth it without a gripper |
-
-### Recommendation: option C
-
-**One powered joint per arm — shoulder pitch — with a hand-posable friction joint
-below it.**
-
-The reasoning is a single observation: **static arms make a robot read as a machine;
-one moving joint makes it read as alive.** That gap is enormous and it costs about
-$24 and roughly zero software, because a 1-DOF arm is just keyframe playback — no
-kinematics, nothing to solve. Shoulder pitch alone gets you waving, pointing at the
-screen, both arms up in celebration, and a slow droop when it's idle or "sad."
-
-The friction joint below it means you can physically pose the forearm to hold or
-prop something, permanently, with no motor holding load.
-
-### Give each arm a job
-
-- **Right arm: a COB LED work light.** After tools, light is a mechanic's #1 physical
-  need. The 1 DOF pitch aims it up or down; the robot rotating its body aims it
-  left/right. This also creates a nice division of labor — **the head films, the arm
-  lights** — so you're not asking one part to do two jobs at once.
-- **Left hand: a magnet.** Hold a socket, stick a bolt to it. Costs a dollar.
-
-Two conductors run down the right arm for the LED. That's the only added wiring.
-
----
-
-## What it actually does
-
-### 1. Hands-free video — the core feature
-
-You're under a car with greasy hands following a procedure. Pausing means a greasy
-phone. TorQ plays the video on its belly and takes voice commands: *pause, back
-thirty, slower, full screen, next step.*
-
-> **This makes voice v1-critical, not a v2 nicety.** It is the entire point.
-
-The good news: this is **command voice, not conversational voice.** A wake word plus
-~15 fixed phrases is a solved, offline, days-of-work problem (openWakeWord + Vosk
-with a constrained grammar). Conversational LLM voice is the hard thing, and you
-don't need it. Don't confuse the two.
-
-**Garage caveat:** shops are loud — compressors, radios, impact wrenches. Speech
-recognition will fail sometimes. So: put a **big rubber push-to-talk button on the
-top deck** you can hit with a knuckle or an elbow. Always-available fallback, and
-honestly it may become the primary input. Cheap insurance.
-
-**Playback implementation note:** don't embed YouTube in a browser — it's finicky on
-a Pi and fails offline. Use **`yt-dlp` + `mpv`**: far more reliable, hardware-decoded,
-and it caches, so the video still works when the shop WiFi drops. Search via yt-dlp.
-
-### 2. Filming your disassembly — the sleeper killer feature
-
-Taking something apart and not remembering how it goes back together is *the*
-universal mechanic pain. TorQ films continuously while you work. You say
-*"TorQ, mark that"* and it bookmarks the moment. Reassembly time, the belly shows
-your bookmarks **in reverse order** with thumbnails.
-
-Even simpler and nearly as good: **"TorQ, photo."** Snap, timestamp, append to a job
-log. Reverse-order gallery for reassembly. No ML, no video scrubbing, trivially
-reliable — build this first and add video on top.
-
-### 3. Torque specs
-
-Look up "2015 Civic lug nut torque" and put it on the belly, big.
-
-**Be careful here, and design for it:** a wrong torque spec means a damaged head or a
-wheel coming off. There is no free reliable spec API — it's a web lookup. So the rule
-is: **never display a spec without its source on screen**, and frame it as *found*,
-not *known*. This is the least reliable feature in the product and the UI should say
-so. Also keep a local user-editable table for the specs you look up often, which is
-both faster and more trustworthy than a live query.
-
-### 4. Timers and counters
-
-Torque sequences (*bolt 3 of 10, criss-cross*), cure times, brake bleed cycles,
-oil drain. Trivial to build, genuinely useful, and it makes the screen earn its
-place even with no internet.
-
-### 5. It repositions itself
-
-The tracks finally have a job: come when called, turn to face you, back up so you can
-see the screen from under the car. This is where the pet behaviors become *useful*
-behaviors, which is the best possible outcome for the affect system.
-
----
-
-## Architecture consequence: the screen is a local web app
-
-Run the belly as a **fullscreen browser pointed at localhost.** Every "app" — player,
-timer, job log, spec lookup — is a web page.
-
-Two big wins for a 12-week clock:
-1. Fast to build and iterate, and you already know how to do it.
-2. **The same UI is your phone UI** at `torq.local`. One codebase, two surfaces. Type
-   the awkward stuff (a search query, a vehicle) on your phone; watch it on the belly.
-
----
-
-## Revised joint count: 6 servos
+### Four servos. That's the whole robot.
 
 | Joint | Count |
 |---|---|
 | Head pan, neck tilt, head tilt | 3 |
 | Belly screen hinge | 1 |
-| Shoulder pitch x2 | 2 |
-| **Total** | **6** |
+| **Total** | **4** |
 
-Down from 9 in the original plan and 8 after the mouth-gripper idea. **Deleted:**
-the jaw, the fin-ray grippers, the shoulder roll, the elbows. Every one of those was
-a motor, a bracket, a wire, and a tuning session.
+Down from 9 → 8 → 6 → **4**. This is now a genuinely buildable machine on a 12-week
+clock, and the reclaimed time goes into the manual library, which is the product.
 
-That reclaimed time is what pays for the screen and the voice work — which is why
-this pivot is roughly **scope-neutral, not scope-creep**, despite adding features.
+### Dropping the arms improved the lighting
 
-### Mechanical cautions from the screen
-
-1. **Tipping.** A ~7in screen with its frame is 300–400g, mounted high and forward,
-   on a hinge. That is the worst possible place for mass on a tracked robot.
-   **Battery goes low and rearward**, and consider a slightly longer/deeper track
-   base than the original sketch. Check that it can't tip when the screen tilts fully
-   forward.
-2. **Hinge load.** Don't let a servo hold that weight continuously — it heats and
-   draws current all day. Add a **spring counterbalance** sized so the panel is near
-   neutral, so the servo only has to nudge it. Use a strong STS3215-class servo here.
-3. **Power and runtime.** Screen plus video decode plus WiFi is real draw. Runtime
-   drops to maybe 1–1.5h. **This is fine** — it's a shop tool that lives near an
-   outlet. Relax the battery target, make the dock good, and let it run plugged in.
-   That's a genuine constraint relief, not a compromise.
+The plan had been "head films, arm lights." With no arms, the light moves onto the
+head — and that's **better**, not a compromise. Put a **LED ring around the camera
+lens**, coaxial with it. Now the light points exactly where the camera looks, which
+is how borescopes and inspection cameras work, and it means aiming the head aims
+both at once. One less thing to coordinate.
 
 ---
 
-## Budget delta
+## The magnets
 
-| Change | ~$ |
-|---|---|
-| **Remove** jaw servo, 2 arm servos, gripper hardware | −40 |
-| **Add** 7in DSI screen | +45 |
-| **Add** belly hinge servo (STS3215) + counterbalance spring | +20 |
-| **Add** COB LED + driver + wiring | +8 |
-| **Add** mic (2-mic) + push-to-talk button | +12 |
-| **Add** better speaker for a loud room | +5 |
-| **Net** | **≈ +$50 → ~$445** |
+You said magnetic base — there are two different features here and both are worth
+having, because both cost zero motors and zero software.
 
-Slightly over the $400 target. Honest trims if you want it back under: a 5in screen
-instead of 7in (−$20), and skip the 4-mic array entirely in favor of the
-push-to-talk button (already assumed above — in a loud garage, direction-of-arrival
-is unreliable anyway and PTT is more robust). Add the mic array in v2 if you miss
-"it turns toward your voice."
+**1. Magnetic parts tray, top deck.** You drop bolts in from standing height without
+bending or aiming. Solves a mechanic's actual #1 annoyance: losing fasteners.
+
+**2. Magnet sweeper, underside/front.** A strip of neodymium magnets low at the
+front. It drives across the shop floor and collects dropped screws, washers, and
+clips. This gives the tracks a *second job* and it is exactly the kind of small
+useful thing that makes a robot feel worth having.
+
+Two honest cautions on the sweeper:
+- **It will collect swarf.** In a car garage that's fine. Near a grinder or a mill
+  it becomes a steel-wool hedgehog. Mount the magnet strip so it's **removable and
+  wipeable** — a printed sled that clips off, not magnets bonded into the chassis.
+- Give it a **release**: a small lever or sliding plate that pushes the hardware off
+  the magnet into your hand. Scraping screws off a bare neodymium strip is annoying
+  enough that you'd stop using it. Still zero motors.
 
 ---
 
-## What the personality is for now
+## The main feature: your manuals, searchable, with the page shown
 
-Don't drop the affect system — but point it at the job. The drives still decay and
-compete, except now:
+This is the product. Everything else is support.
 
-- It notices you've been on the same bolt for ten minutes and offers the spec.
-- It looks where your hands are, with the light on.
-- It gets bored and idles with Perlin head motion when the job's done.
-- It reacts when you pick it up or move it.
+> **"TorQ, lug nut torque on a 2015 Civic."**
+> Belly screen shows: **80 ft-lb** — and underneath it, *the actual scanned page from
+> the service manual*, with the torque table right there.
 
-**A useful thing with a personality is a stronger product than either alone.** The
-screen carries the utility; the head, the light, and the arms carry the charm.
+### The architecture that makes this trustworthy: retrieval first, LLM second
+
+A wrong torque spec means a damaged head or a wheel leaving the car. So the design
+rule is:
+
+> **The LLM's job is to find the page, never to be the source of the number.**
+
+Query → find the right manual page → **display the page image**. The language model
+sits on top and adds a one-line plain-English answer with its citation. Three things
+fall out of this for free:
+
+1. **You can see it's right.** The table is on screen next to the answer.
+2. **It works offline.** Retrieval is local. Shop WiFi dies, you still get the page.
+   Only the optional summary needs network.
+3. **Being wrong is visible, not silent** — the worst failure mode is eliminated by
+   construction rather than by prompt engineering.
+
+### How to build it
+
+**Ingest on your laptop, never on the Pi.** This is the important practical call.
+OCR and embedding a 400-page scanned manual is slow; do it once on a real computer
+and copy the result over. The Pi only ever does lookup and display.
+
+```
+laptop:  PDF ──> render each page to PNG (pymupdf)
+              ──> extract text; if the page is a scan with no text layer, OCR it
+              ──> chunk per page/section, embed (bge-small or all-MiniLM)
+              ──> sqlite: {manual, page, text, embedding, png_path}
+              ──> rsync the folder to the Pi
+
+TorQ:    query ──> embed locally (MiniLM runs fine on a Pi 5)
+              ──> top-k pages by similarity, filtered by vehicle if known
+              ──> show the page PNG on the belly, scrolled to the match
+              ──> (optional, if online) LLM reads the page text, writes one line
+```
+
+**The genuine technical risk is tables.** Torque specs live in tables, and text
+extraction mangles table layout badly — this is the part that will eat your time,
+not the embedding or the search. Two mitigations, in order:
+
+1. **Show the page image and let the human read the table.** This is why the
+   page-first design isn't just safer, it's *easier*. It routes around the hard
+   problem entirely.
+2. Later, at ingest time, run a vision model over table pages to extract structured
+   rows. Nice upgrade. Not v1.
+
+**Storage:** page images add up — a 400-page manual at 150dpi is roughly 400MB, so a
+handful of manuals is several GB. **Buy a 256GB card or a USB SSD**, not the 32GB
+card that comes in a starter kit. Cheap now, annoying later.
+
+---
+
+## Everything else, in priority order
+
+1. **Manual lookup** — above. The product.
+2. **Video playback** — YouTube how-tos and local files on the belly. Use
+   **`yt-dlp` + `mpv`**, not an embedded browser player: hardware-decoded, far more
+   reliable on a Pi, and it caches so it survives bad shop WiFi.
+3. **Timers and counters** — torque sequences (*bolt 3 of 10, criss-cross*), cure
+   times, bleed cycles, oil drain. Trivial, useful, works with no internet.
+4. **Photo-per-step job log** *(stretch)* — say "photo" at each step of a teardown,
+   get a reverse-order gallery for reassembly. Cheap and high value if time allows.
+5. **It repositions itself** — comes when called, turns so you can see the screen.
+
+---
+
+## Architecture: the belly is a local web app
+
+Run the screen as a **fullscreen browser pointed at localhost.** Every feature —
+manual search, player, timers, job log — is a web page.
+
+Two wins on a 12-week clock:
+1. Fast to build and iterate.
+2. **The same UI is your phone UI** at `torq.local`. Type the awkward stuff (a query,
+   a vehicle) on your phone; read it on the belly.
+
+---
+
+## Voice: yes, addable later — if you buy three things now
+
+You asked whether voice can come later if you tire of prerecorded noises. **Yes.**
+But separate two things that get conflated:
+
+| | What it is | Add later? |
+|---|---|---|
+| **Voice OUT** | It talks to you (vs. Wall-E chirps) | **Yes — pure software** |
+| **Voice IN** | You talk to it (wake word + commands) | **Yes — mostly software** |
+
+Both are software swaps with **no mechanical consequence** — *provided the hardware
+underneath them exists.* Buy these three now, because they're the parts you can't
+retrofit without a teardown:
+
+1. **A decent speaker and amp — not a tiny one.** Beeps and chirps sound fine on a
+   cheap 3W speaker. *Speech does not*, especially in a loud shop. If you fit a
+   tinny driver now, the day you switch on speech it'll be unintelligible and you'll
+   be pulling the robot apart. Buy the better speaker while it's a $5 decision.
+2. **A mic mount and wire run in the head** — even if you don't populate it. And
+   decide *placement* now: **high on the head, away from the drive motors**, with a
+   foam windscreen. A mic buried in a chassis next to servo whine is worthless, and
+   moving it later means re-cutting the shell.
+3. **The push-to-talk button and its GPIO line.** You already want this as a backup.
+   Run it in week 1.
+
+That's about **$20 and one evening of CAD** to keep both doors open. Textbook case of
+the buy-cheap-options-early rule.
+
+### Ship the chirps, and don't be in a hurry to replace them
+
+Prerecorded Wall-E noises aren't a placeholder — for personality they're **better
+than speech**. Chirps make it a character; a talking robot is a smart speaker with
+tracks. Plenty of people ship TTS and regret flattening their robot into Alexa.
+
+The one place speech genuinely earns its place is **reading a spec aloud when you're
+under the car and can't see the screen.** If that's the version you want, `piper`
+runs locally on a Pi 5, sounds decent, and is roughly a two-day job — so it's on the
+*if you're ahead* list, not the cut list. Rule if you add it: it speaks the number
+**and** names the source. Never a bare number.
