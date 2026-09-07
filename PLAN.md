@@ -246,6 +246,10 @@ converter. If the replacement is 3 weeks out, you lose 3 weeks.
 | Spare Pico 2 | 5 | Trivial insurance |
 | **Total** | **~$57** | Best money in the build |
 
+**One irreversible choice in this order: buy the TOUCHSCREEN version of the belly
+panel** (~+$15). Not buying it means replacing the panel and re-cutting the bezel
+later. Buying it and never using it costs $15. See `CAPABILITIES.md`.
+
 Also verify before ordering: stay **within the STS servo protocol family** across
 all 8 servos. Do not mix in SCS-series parts. Debugging a servo bus while also
 debugging everything else is a bad week.
