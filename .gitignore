@@ -6,3 +6,4 @@ venv/
 *.step
 build/
 .DS_Store
+TorQ-Parts-List.pdf

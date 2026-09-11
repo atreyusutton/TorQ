@@ -65,8 +65,32 @@ Everything he specifies. The **Us** column is what we do with it.
 |---|---|---|---|
 | 1 | USB camera | 15 | ✅ **Keep — you already have this** |
 | 1 | Small speaker | 5 | 🔄 **Swap** → I²S amp + 5W driver |
-| 1 | 1.3in OLED display, i²c | 8 | ❌ **Skip** — we have a 6.25in screen |
+| 1 | 1.3in OLED display, i²c | 8 | ✅ **Keep** — it becomes the solar charge indicator |
 | — | Resistors, 100kΩ + 47kΩ (battery monitoring divider) | 2 | ❌ **Skip** — superseded by the fuel gauge |
+
+> ### What the OLED is, and why we're keeping it
+>
+> In his build the 1.3in i²c OLED is a **status readout** — it pairs with those two
+> resistors, which form a voltage divider feeding the Arduino's ADC, so the Arduino
+> can measure pack voltage and print it. Battery level, basically.
+>
+> I had this down as *skip* — we have a 6.25in touchscreen, why keep a 1.3in one.
+> That was wrong, for three reasons:
+>
+> 1. **The big screen is in his hands, and it won't always be awake or docked.** A
+>    status readout you have to pick the screen up to see isn't a status readout.
+> 2. **It survives the Pi.** It hangs off the *Arduino*, not the Pi. If the Pi wedges
+>    mid-boot or a card goes bad, the OLED still tells you the robot has power and the
+>    motion board is alive. That is the difference between a five-minute diagnosis and
+>    an afternoon.
+> 3. **His body already has a hole for it.** He deliberately left a recess in the chest
+>    for WALL·E's **solar charge indicator** — the little bar that fills up as he
+>    charges in the film. Put the OLED there and drive it with real pack percentage
+>    from the fuel gauge, and the most screen-accurate detail on the robot is also the
+>    most useful one. Free — the cavity is already in the STL.
+>
+> **Keep it. $8.** Drop the two resistors, though: the MAX17048 fuel gauge does the
+> same job properly over i²c, and a divider on an ADC drifts with temperature.
 
 ### Stock build total — **≈ $233** plus filament
 *(Sanity check: Printed Droid lists this build at $200–300. We're in the right place.)*
@@ -81,7 +105,7 @@ Everything he specifies. The **Us** column is what we do with it.
 |---|---|---|---|
 | Raspberry Pi | **Pi 5, 4GB** | Runs Chromium, `mpv` video decode and the local embedding search at once. 2GB is tight | 60 |
 | 12V→5V buck ×1 | **12V→5V/5A + 12V→6V/5A + bulk caps** | **Separate rails.** Servo inrush browning out the Pi is the #1 killer of Pi robots | 18 |
-| 11.1V LiPo + charger | **3S2P 18650 pack + BMS + holder + charger** | ~38Wh vs his 24Wh, and a protected pack you can leave on a shelf in a garage. His LiPo works fine if you'd rather — it's cheaper and lighter | 45 |
+| 11.1V LiPo + charger | **3S2P 18650 pack + ≥20A BMS + holder + 12.6V charger** | **67Wh vs his 24Wh** — roughly 3 hours of use instead of 1. Also a protected pack you can leave on a shelf in a garage. See the power budget below | 50 |
 | Small speaker | **MAX98357A I²S amp + 5W speaker** | **Buy the good speaker.** Chirps sound fine on a cheap driver; speech does not | 15 |
 | 2× MG90S (shoulders) | **2× Feetech STS3215 + FE-URT-1 bus adapter** | The shoulders now carry a screen. See the arm section | 44 |
 
@@ -178,18 +202,70 @@ joints are pressure-fit** — posable by hand, which means they creep under a st
 
 ---
 
+# Power budget — do we need a better battery?
+
+**Yes, and it's already in the list — but I had the capacity wrong above, so here's
+the arithmetic.**
+
+### What the robot actually draws, at 12V
+
+| Load | Typical | Worst case |
+|---|---|---|
+| Pi 5 + SSD (Chromium + video decode) | 8W | 25W |
+| 6.25in DSI screen | 2.5W | 3W |
+| 5× MG90S (head/eyes) | 1.5W | 20W all moving |
+| 2× STS3215 (shoulders — detents hold, so they idle) | 0.5W | 36W lifting |
+| 2× drive motors (amortised over ~20% driving) | 2W | 70W both stalled |
+| Lights (duty-cycled) | 2W | 5W |
+| Audio amp | 1W | 5W |
+| Arduino + sensors + OLED | 1.5W | 2W |
+| **Total** | **≈ 19W** | **≈ 165W (never sustained)** |
+
+### What that means for runtime
+
+| Pack | Capacity | Usable | Runtime at 19W |
+|---|---|---|---|
+| His 2200mAh 11.1V LiPo | 24Wh | ~19Wh | **≈ 1 hour** |
+| **3S2P 18650, 3000mAh cells** | **67Wh** | **~57Wh** | **≈ 3 hours** |
+
+One hour is not a shop session. Three is. **That's the answer: yes, and the 3S2P
+pack in §2a is it.**
+
+### The spec that actually bites — and it isn't capacity
+
+Look at the worst-case column. Motors stalling while the servos lift and the Pi is
+busy can pull **10–12A** for a second or two. Two things have to survive that:
+
+- **The BMS must be rated ≥20A continuous.** Most cheap 3S BMS boards are 8–10A.
+  A 10A board doesn't sag under that peak — it *trips*, cutting all power, which
+  hard-reboots the Pi mid-task and can corrupt the card. This is the single most
+  common way a build like this fails intermittently and takes a week to diagnose.
+- **The cells must be high-drain**, ≥10A each: Samsung 30Q, Molicel P26A, Sony VTC6.
+  Recovered laptop-pack 18650s are typically rated ~2A and will sag hard enough to
+  brown out the 5V rail.
+
+Cheap insurance on top of both: **the bulk capacitors already in §2a**, sitting right
+at the motor driver and the servo rail, to absorb the inrush before it reaches the pack.
+
+> **If you'd rather keep his LiPo:** it works, it's lighter, and it's cheaper. You get
+> about an hour, you need a proper balance charger and somewhere fire-safe to store it,
+> and there's no BMS protecting it from over-discharge. For a robot that lives in a
+> garage and gets picked up mid-task, I'd take the 18650 pack.
+
+---
+
 # Totals
 
 | | ~$ |
 |---|---|
-| Stock parts we keep (§1) | 115 |
-| Swaps (§2a) | 182 |
+| Stock parts we keep (§1) | 123 |
+| Swaps (§2a) | 187 |
 | Screen + ribbon path (§2b) | 76 |
 | Arms (§2c) | 28 |
 | Light (§2d) | 36 |
 | Sensing, audio, input (§2e) | 62 |
 | Storage and body (§2f) | 130 |
-| **Core total** | **≈ 629** |
+| **Core total** | **≈ 642** |
 
 ### Spares — buy these too (~$42)
 
@@ -211,22 +287,21 @@ loses you the project. Best money in the build.
 | Pi Camera Module 3 Wide | **Only if you want the magnifier.** Your USB camera is fixed-focus, and the magnifier needs to focus at 5–10cm | 35 |
 | ELM327 Bluetooth OBD-II dongle | Read trouble codes, then show the matching manual page. Best value-per-dollar upgrade available. **1996+ vehicles only** | 15 |
 | Hailo-8L AI HAT | On-device vision for v2. The Pi's PCIe slot stays free for it | 70 |
-| 1.3in OLED (his part) | Rear-mounted battery/status readout. Skipped, but it's $8 and it's a nice touch | 8 |
 
 ### Running totals
 
 | | ~$ |
 |---|---|
-| Core | 629 |
-| + Spares | 671 |
-| + Camera Module 3 (if you want the magnifier) | 706 |
-| + OBD-II dongle | 721 |
+| Core | 642 |
+| + Spares | 684 |
+| + Camera Module 3 (if you want the magnifier) | 719 |
+| + OBD-II dongle | 734 |
 
-**The honest drift:** stock is $233. We're at $629 — we have roughly tripled it.
+**The honest drift:** stock is $233. We're at $642 — we have roughly tripled it.
 Where it went, in order: the screen and its cable path ($76), the Pi 5 and storage
 ($85), 3kg of filament ($60), sensing we added that he never had ($62), lighting
 ($36), and the arms becoming structural ($72 including the servo swap). Every one of
-those traces to a decision in `CONCEPT.md`. None of it is padding — but $629 is the
+those traces to a decision in `CONCEPT.md`. None of it is padding — but $642 is the
 number to take to the group, not $400.
 
 ---
