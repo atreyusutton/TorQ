@@ -1,6 +1,6 @@
 # TorQ — Parts List
 
-**v3 — full stock BOM + our swaps. Hands-held 6.25in screen.**
+**v4 — full stock BOM + our swaps. Hands-held 5in screen.**
 v1 (belly screen, custom body) is archived at `_archive/BOM-v1-belly-screen.md`.
 
 Two parts below. **Part 1** is Simon Bluett's ([chillibasket](https://wired.chillibasket.com/3d-printed-wall-e/))
@@ -74,7 +74,7 @@ Everything he specifies. The **Us** column is what we do with it.
 > resistors, which form a voltage divider feeding the Arduino's ADC, so the Arduino
 > can measure pack voltage and print it. Battery level, basically.
 >
-> I had this down as *skip* — we have a 6.25in touchscreen, why keep a 1.3in one.
+> I had this down as *skip* — we have a 5in touchscreen, why keep a 1.3in one.
 > That was wrong, for three reasons:
 >
 > 1. **The big screen is in his hands, and it won't always be awake or docked.** A
@@ -113,32 +113,37 @@ Everything he specifies. The **Us** column is what we do with it.
 
 | Part | Why | ~$ |
 |---|---|---|
-| **Waveshare 6.25in DSI touch, 720×1560** | Your ~14cm target. **159mm diagonal, 144 × 66.5mm active.** Single DSI ribbon — one cable across the shoulder instead of two | 50 |
+| **Waveshare 5in DSI LCD (D), 720×1280 IPS touch** | **127mm diagonal, 62 × 111mm active, portrait-native.** Single DSI ribbon — one cable across the shoulder instead of two. Optical-bonded toughened glass, which matters in a garage | 45 |
 | **2× DSI FFC ribbon, 22-pin → 15-pin, 300mm** | Pi 5 uses the 22-pin 0.5mm connector; the panel is 15-pin. **Buy two** | 12 |
 | Screen carrier hardware — M2.5 standoffs, nylon washers | The printed frame the hands actually grip | 8 |
 | Magnetic dock pads, chest | Screen parks flat on his chest when driving. Protects the glass, pulls the CG back over the tracks | 6 |
 
-> ### On "close to 14cm"
+> ### Screen size — decided: 5in
 >
-> I read that as **diagonal**. Here's the honest picture at that size, because it
-> shapes the product:
+> You asked for ~14cm and then called it back to 5in (127mm). Recording the options
+> so nobody re-opens this later:
 >
 > | Panel | Diagonal | Active area | Interface | ~$ |
 > |---|---|---|---|---|
-> | 5in DSI, 1024×600 | 127mm | 108 × 65mm | 1 ribbon | 40 |
-> | **6.25in DSI, 720×1560** ← chosen | **159mm** | **144 × 66.5mm** | **1 ribbon** | **50** |
-> | 5.5in AMOLED, 1080×1920 | **140mm — exact** | 68 × 122mm | HDMI **+** USB | 95 |
+> | **5in DSI LCD (D), 720×1280** ← **chosen** | **127mm** | **62 × 111mm** | **1 ribbon** | **45** |
+> | 5in DSI LCD (C), 1024×600 | 127mm | 110 × 64mm | 1 ribbon | 45 |
+> | 6.25in DSI, 720×1560 | 159mm | 144 × 66.5mm | 1 ribbon | 50 |
+> | 5.5in AMOLED, 1080×1920 | 140mm | 68 × 122mm | HDMI **+** USB | 95 |
 >
-> **Everything in this size class is a phone panel**, so it's tall and narrow (9:16
-> or thinner) rather than page-shaped. Mounted **portrait**, the 6.25in gives you a
-> 66.5 × 144mm reading column — which is to say, roughly a phone, which is exactly
-> how people already read PDFs on their feet. That's fine.
+> **Of the 5in DSI panels, take the (D) — 720×1280, not the 800×480 or the 1024×600.**
+> It is **portrait-native**, which is the right shape for a scanned manual page and
+> means no display rotation and no fighting the touch-axis mapping that rotation
+> brings with it. It also has the most pixels of the three, and a scanned page is the
+> one thing on this robot that genuinely wants them.
 >
-> The 5.5in AMOLED hits 14cm exactly and looks better, but it's **HDMI + USB**:
-> two cables across a moving shoulder instead of one, and nearly double the price.
-> Given the ribbon is already the most failure-prone thing on this robot, I went
-> with the single-cable part and overshot your target by 19mm. **Say the word if
-> you'd rather have exactly 14cm and I'll swap it back** — it's a one-line change.
+> **What 5in costs you, honestly:** a 62mm-wide reading column. That is narrower than
+> a phone. A full manual page will need pinch-zoom and pan rather than being readable
+> whole. If the group pushes back on that in week 6, the 6.25in is a drop-in swap —
+> same interface, same ribbon, +$5, +80g.
+>
+> **What it buys you:** the screen assembly drops from ~250–330g to **~200–260g**,
+> which is real relief on the arms, and a smaller panel is far easier to fit in
+> WALL·E's hands at 41% scale without looking like he's carrying a tea tray.
 
 > ### ⚠ The ribbon cable is still the weakest part in this list
 >
@@ -151,16 +156,24 @@ Everything he specifies. The **Us** column is what we do with it.
 
 ### 2c. Arms — now load-bearing
 
-The finished screen assembly lands around **250–330g** depending on where the Pi goes.
+The finished screen assembly lands around **200–260g** depending on where the Pi goes.
 Stock arms are not built for that: the shoulders are MG90S, and the **elbow and wrist
 joints are pressure-fit** — posable by hand, which means they creep under a steady load.
 
 | Part | Why | ~$ |
 |---|---|---|
-| 2× Feetech STS3215 *(counted in swaps above)* | Shoulder lift. MG90S will buzz, creep and strip under 300g on a lever arm | — |
+| 2× Feetech STS3215 *(counted in swaps above)* | Shoulder lift. ~230g on a 70mm lever is ~1.6kg·cm — about 70% of an MG90S's rated stall torque, held all day. See the note below | — |
 | 2× 4mm carbon fibre tube + M3 hardware | Runs inside each printed arm. PETG alone creeps under sustained load over weeks | 8 |
 | Shoulder bearings (flanged) | Takes radial load off the servo shaft | 8 |
-| 2× spring plunger detent | **The arms lock into the raised position mechanically.** The servo lifts; the detent holds. A servo holding 300g static all day is a servo you replace | 8 |
+| 2× spring plunger detent | **The arms lock into the raised position mechanically.** The servo lifts; the detent holds. A servo holding 230g static all day is a servo you replace | 8 |
+
+> **Could the 5in screen ride on stock MG90S shoulders and save $44?** Arguably — with
+> the detents carrying the static load, the servo only has to *lift* ~1.6kg·cm, and an
+> MG90S is rated ~2.2kg·cm. But that's 70% of stall with no margin for a stiff joint or
+> a cold morning, and `PLAN.md` already made this call: *"servos one size stronger than
+> the calculation says (costs ~$5 each)."* Re-sizing a shoulder in week 9 is a teardown.
+> **Keeping the STS3215s.** If the group wants the $44 back, this is the honest place to
+> argue for it — but I wouldn't.
 | M3 bolt + nyloc pivots for elbow/wrist | Replaces the pressure-fit joints so you can set friction and it stays set | 4 |
 
 > **Sync the arms or they fight each other.** Two arms holding one rigid screen is a
@@ -196,7 +209,7 @@ joints are pressure-fit** — posable by hand, which means they creep under a st
 |---|---|---|
 | 256GB USB SSD **or** A2 microSD | Manual page images run ~400MB per manual. Not the 32GB card from a starter kit | 25 |
 | Neodymium magnets — tray + sweeper strip | Parts tray on top; removable sled underneath that collects dropped screws | 10 |
-| Rear counterweight (steel/lead shot) | 300g held out front on tracks wants to nose over on a ramp | 5 |
+| Rear counterweight (steel/lead shot) | 230g held out front on tracks wants to nose over on a ramp. Less critical at 5in than it was at 6.25in, but still cheap insurance | 5 |
 | JST connectors, wire, misc bearings | **Connectors, not solder joints** — every soldered wire is one you must desolder to change anything | 30 |
 | PETG + TPU filament, ~3kg | **310 parts.** This is not the 1kg spool you have. Body PETG, track pads TPU | 60 |
 
@@ -212,21 +225,21 @@ the arithmetic.**
 | Load | Typical | Worst case |
 |---|---|---|
 | Pi 5 + SSD (Chromium + video decode) | 8W | 25W |
-| 6.25in DSI screen | 2.5W | 3W |
+| 5in DSI screen | 2W | 2.5W |
 | 5× MG90S (head/eyes) | 1.5W | 20W all moving |
 | 2× STS3215 (shoulders — detents hold, so they idle) | 0.5W | 36W lifting |
 | 2× drive motors (amortised over ~20% driving) | 2W | 70W both stalled |
 | Lights (duty-cycled) | 2W | 5W |
 | Audio amp | 1W | 5W |
 | Arduino + sensors + OLED | 1.5W | 2W |
-| **Total** | **≈ 19W** | **≈ 165W (never sustained)** |
+| **Total** | **≈ 18W** | **≈ 165W (never sustained)** |
 
 ### What that means for runtime
 
-| Pack | Capacity | Usable | Runtime at 19W |
+| Pack | Capacity | Usable | Runtime at 18W |
 |---|---|---|---|
 | His 2200mAh 11.1V LiPo | 24Wh | ~19Wh | **≈ 1 hour** |
-| **3S2P 18650, 3000mAh cells** | **67Wh** | **~57Wh** | **≈ 3 hours** |
+| **3S2P 18650, 3000mAh cells** | **67Wh** | **~57Wh** | **≈ 3¼ hours** |
 
 One hour is not a shop session. Three is. **That's the answer: yes, and the 3S2P
 pack in §2a is it.**
@@ -260,12 +273,12 @@ at the motor driver and the servo rail, to absorb the inrush before it reaches t
 |---|---|
 | Stock parts we keep (§1) | 123 |
 | Swaps (§2a) | 187 |
-| Screen + ribbon path (§2b) | 76 |
+| Screen + ribbon path (§2b) | 71 |
 | Arms (§2c) | 28 |
 | Light (§2d) | 36 |
 | Sensing, audio, input (§2e) | 62 |
 | Storage and body (§2f) | 130 |
-| **Core total** | **≈ 642** |
+| **Core total** | **≈ 637** |
 
 ### Spares — buy these too (~$42)
 
@@ -292,16 +305,16 @@ loses you the project. Best money in the build.
 
 | | ~$ |
 |---|---|
-| Core | 642 |
-| + Spares | 684 |
-| + Camera Module 3 (if you want the magnifier) | 719 |
-| + OBD-II dongle | 734 |
+| Core | 637 |
+| + Spares | 679 |
+| + Camera Module 3 (if you want the magnifier) | 714 |
+| + OBD-II dongle | 729 |
 
-**The honest drift:** stock is $233. We're at $642 — we have roughly tripled it.
-Where it went, in order: the screen and its cable path ($76), the Pi 5 and storage
+**The honest drift:** stock is $233. We're at $637 — we have roughly tripled it.
+Where it went, in order: the screen and its cable path ($71), the Pi 5 and storage
 ($85), 3kg of filament ($60), sensing we added that he never had ($62), lighting
 ($36), and the arms becoming structural ($72 including the servo swap). Every one of
-those traces to a decision in `CONCEPT.md`. None of it is padding — but $642 is the
+those traces to a decision in `CONCEPT.md`. None of it is padding — but $637 is the
 number to take to the group, not $400.
 
 ---
