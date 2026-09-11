@@ -1,201 +1,248 @@
 # TorQ — Parts List
 
-**v2 — hands-held screen, stock chillibasket chassis.**
+**v3 — full stock BOM + our swaps. Hands-held 6.25in screen.**
 v1 (belly screen, custom body) is archived at `_archive/BOM-v1-belly-screen.md`.
 
-Prices are approximate US street prices for one unit. Order **everything in week 1** —
-shipping on servos is routinely 2–4 weeks, which is a quarter of a 12-week project.
+Two parts below. **Part 1** is Simon Bluett's ([chillibasket](https://wired.chillibasket.com/3d-printed-wall-e/))
+published parts list, complete and unedited, including the things we don't use —
+so you can see exactly what the stock build is before we touch it. **Part 2** is
+every change we make to it.
+
+Order **everything in week 1.** Shipping on servos is routinely 2–4 weeks, which is
+a quarter of a 12-week project. Printing also starts week 1 — 310 parts is over a
+month of machine time and it is not a week-4 activity.
 
 ---
 
-## What changed in v2, and why
+# Part 1 — The stock chillibasket BOM, complete
 
-Three decisions drove this list:
+Everything he specifies. The **Us** column is what we do with it.
 
-1. **The chassis is the [chillibasket WALL·E](https://www.printables.com/model/408363-wall-e) as-published.** We inherit his body CAD, his assembly PDF and his Arduino motion code instead of writing them. That deletes the two largest schedule risks in `PLAN.md`.
-2. **The screen moved from the belly to the hands.** This is a strictly better idea than v1 and it solves a problem we had: a hands-held screen needs **no chest surgery**, so the body stays stock. It also puts the screen at a height you can aim, and Wall-E holding something up in both hands is the most in-character pose he has.
-3. **The screen dropped to 5".** Not a budget cut — a load cut. Every gram in the hands is torque at the shoulder and forward tip-over on the tracks.
+### Fasteners and linkages
+| Qty | Part | ~$ | Us |
+|---|---|---|---|
+| 14 | M3 bolt, 10mm | — | ✅ Keep |
+| 12 | M3 bolt, 20mm | — | ✅ Keep |
+| 2 | M3 bolt, 6mm | — | ✅ Keep |
+| 26 | M3 nut | — | ✅ Keep |
+| 3 | Paper clip (servo linkages) | 0 | ✅ Keep |
+| | *M3 assortment, buy a boxed kit — we need more than stock* | 10 | |
 
-The cost of moving the screen to the hands is that **the arms are now structural.** Stock arms are pressure-fit posable plastic; ours carry ~280g out in front of the robot. That is where the new money in this list goes.
+### Optical
+| Qty | Part | ~$ | Us |
+|---|---|---|---|
+| 2 | Plano-convex lens, ⌀31.5–32.5mm (the eyes) | 12 | ✅ Keep |
+
+### Servos and motors
+| Qty | Part | ~$ | Us |
+|---|---|---|---|
+| 7 | MG90S high-torque micro servo | 20 | ⚠️ **Keep 5, swap 2** — see below |
+| 2 | 12V DC geared motor, 100–150RPM, ⌀37mm, off-centre output shaft | 30 | ✅ Keep |
+
+> His 7 servos are: **2× eye raise/lower** (independent), **1× head rotate**,
+> **1× neck up/down**, **1× neck raise/lower**, **2× arm up/down at the shoulder**.
+> The **2 shoulder servos are the ones we swap.** Buy all 7 anyway — they're $3 each
+> and the two you displace become your spares.
+
+### Control electronics
+| Qty | Part | ~$ | Us |
+|---|---|---|---|
+| 1 | Arduino Uno | 12 | ✅ Keep |
+| 1 | Motor Controller Shield (Rev3) | 13 | ✅ Keep |
+| 1 | i²c servo controller board (PCA9685) | 10 | ✅ Keep |
+| 1 | Raspberry Pi | 35 | 🔄 **Swap** → Pi 5 4GB |
+| 1 | 12V → 5V DC buck converter | 6 | 🔄 **Swap** → dual rail, 5A |
+
+### Power
+| Qty | Part | ~$ | Us |
+|---|---|---|---|
+| 1 | 12V DC battery pack (he suggests 2200mAh 11.1V 30C LiPo) | 22 | 🔄 **Swap** → 3S2P 18650 |
+| 1 | LiPo battery charger | 25 | 🔄 **Swap** → BMS + charger |
+| 5 pr | XT60 battery connectors | 8 | ✅ Keep |
+
+### Optional in his build
+| Qty | Part | ~$ | Us |
+|---|---|---|---|
+| 1 | USB camera | 15 | ✅ **Keep — you already have this** |
+| 1 | Small speaker | 5 | 🔄 **Swap** → I²S amp + 5W driver |
+| 1 | 1.3in OLED display, i²c | 8 | ❌ **Skip** — we have a 6.25in screen |
+| — | Resistors, 100kΩ + 47kΩ (battery monitoring divider) | 2 | ❌ **Skip** — superseded by the fuel gauge |
+
+### Stock build total — **≈ $233** plus filament
+*(Sanity check: Printed Droid lists this build at $200–300. We're in the right place.)*
 
 ---
 
-## Core build
+# Part 2 — Our swaps and additions
 
-### Brains and storage
+### 2a. Swaps — replacing a stock part
+
+| Stock part | Replaced with | Why | ~$ |
+|---|---|---|---|
+| Raspberry Pi | **Pi 5, 4GB** | Runs Chromium, `mpv` video decode and the local embedding search at once. 2GB is tight | 60 |
+| 12V→5V buck ×1 | **12V→5V/5A + 12V→6V/5A + bulk caps** | **Separate rails.** Servo inrush browning out the Pi is the #1 killer of Pi robots | 18 |
+| 11.1V LiPo + charger | **3S2P 18650 pack + BMS + holder + charger** | ~38Wh vs his 24Wh, and a protected pack you can leave on a shelf in a garage. His LiPo works fine if you'd rather — it's cheaper and lighter | 45 |
+| Small speaker | **MAX98357A I²S amp + 5W speaker** | **Buy the good speaker.** Chirps sound fine on a cheap driver; speech does not | 15 |
+| 2× MG90S (shoulders) | **2× Feetech STS3215 + FE-URT-1 bus adapter** | The shoulders now carry a screen. See the arm section | 44 |
+
+### 2b. The screen and the path to it
+
 | Part | Why | ~$ |
 |---|---|---|
-| Raspberry Pi 5, 4GB | Runs the screen, browser, video decode and local embedding search. 2GB is tight once Chromium and `mpv` are both up | 60 |
-| 256GB USB SSD **or** A2 microSD | Manual page images run ~400MB per manual. Do not use the 32GB card from a starter kit | 25 |
-| Arduino Uno | Chillibasket's motion firmware targets it. Using his board means using his working code | 12 |
-| Motor driver shield | Same reason — it's what his sketch drives | 13 |
+| **Waveshare 6.25in DSI touch, 720×1560** | Your ~14cm target. **159mm diagonal, 144 × 66.5mm active.** Single DSI ribbon — one cable across the shoulder instead of two | 50 |
+| **2× DSI FFC ribbon, 22-pin → 15-pin, 300mm** | Pi 5 uses the 22-pin 0.5mm connector; the panel is 15-pin. **Buy two** | 12 |
+| Screen carrier hardware — M2.5 standoffs, nylon washers | The printed frame the hands actually grip | 8 |
+| Magnetic dock pads, chest | Screen parks flat on his chest when driving. Protects the glass, pulls the CG back over the tracks | 6 |
 
-> We are deliberately **not** substituting a Pico 2 here. The whole point of taking his
-> chassis is taking his firmware with it. Swap the board and you inherit the CAD but
-> re-debug the motion loop, which is the expensive half.
+> ### On "close to 14cm"
+>
+> I read that as **diagonal**. Here's the honest picture at that size, because it
+> shapes the product:
+>
+> | Panel | Diagonal | Active area | Interface | ~$ |
+> |---|---|---|---|---|
+> | 5in DSI, 1024×600 | 127mm | 108 × 65mm | 1 ribbon | 40 |
+> | **6.25in DSI, 720×1560** ← chosen | **159mm** | **144 × 66.5mm** | **1 ribbon** | **50** |
+> | 5.5in AMOLED, 1080×1920 | **140mm — exact** | 68 × 122mm | HDMI **+** USB | 95 |
+>
+> **Everything in this size class is a phone panel**, so it's tall and narrow (9:16
+> or thinner) rather than page-shaped. Mounted **portrait**, the 6.25in gives you a
+> 66.5 × 144mm reading column — which is to say, roughly a phone, which is exactly
+> how people already read PDFs on their feet. That's fine.
+>
+> The 5.5in AMOLED hits 14cm exactly and looks better, but it's **HDMI + USB**:
+> two cables across a moving shoulder instead of one, and nearly double the price.
+> Given the ribbon is already the most failure-prone thing on this robot, I went
+> with the single-cable part and overshot your target by 19mm. **Say the word if
+> you'd rather have exactly 14cm and I'll swap it back** — it's a one-line change.
 
-### The screen and the path to it
+> ### ⚠ The ribbon cable is still the weakest part in this list
+>
+> A DSI flex crossing a moving joint will eventually fail; flex cables are rated for
+> a limited number of bend cycles and a shoulder is thousands.
+>
+> - **Route it through the shoulder pivot axis so it twists rather than bends.** Free, and worth an order of magnitude in cycles.
+> - **The spare is in the core list, not the spares list.** A $6 cable that's three weeks out in week 10 is a dead project.
+> - **Lower-risk alternative:** mount the Pi 5 *on the screen carrier*, behind the panel (85×56mm — it fits). The DSI run becomes 100mm and never moves; only 5V and one USB cross the shoulder. Costs ~46g in the hands. Decide at assembly.
+
+### 2c. Arms — now load-bearing
+
+The finished screen assembly lands around **250–330g** depending on where the Pi goes.
+Stock arms are not built for that: the shoulders are MG90S, and the **elbow and wrist
+joints are pressure-fit** — posable by hand, which means they creep under a steady load.
+
 | Part | Why | ~$ |
 |---|---|---|
-| 5in DSI **touchscreen** (800×480) | The main interface. **Buy the touch version.** 5in is the ceiling for a hands-held panel at 41% scale | 40 |
-| **2× DSI FFC ribbon, 22-pin → 15-pin, 300mm** | Pi 5 uses the 22-pin 0.5mm connector; most 5in panels are 15-pin 1mm. **Buy two** — see the warning below | 12 |
-| Screen carrier frame hardware — M2.5 standoffs, nylon washers | The printed carrier the hands actually grip | 8 |
-| Magnetic dock pads, chest | Screen parks flat against his chest when driving. Protects the panel, pulls the CG back over the tracks | 6 |
-
-> ### ⚠ The ribbon cable is the weakest part in this list
->
-> A DSI flex cable crossing a moving shoulder joint will eventually fail — flex cables
-> are rated for a limited number of bend cycles and a shoulder is thousands. Two
-> mitigations, both cheap:
->
-> - **Route the cable through the shoulder pivot axis so it twists rather than bends.**
->   Costs nothing, buys an order of magnitude in cycles.
-> - **Buy the spare now.** A $6 cable that's three weeks out in week 10 is a dead project.
->
-> **The lower-risk alternative, worth considering:** mount the Pi 5 *on the screen
-> carrier*, behind the panel. It's 85×56mm and it fits. Then the DSI cable is 100mm and
-> never moves, and the only thing crossing the shoulder is 5V power and one USB lead to
-> the Arduino. This is the more robust design. It costs you a heavier hand assembly
-> (~46g) and a longer power run. **[assumed: you want the ribbon-through-the-arm version
-> since you asked for the cable — both are priced here, pick one at assembly time]**
-
-### Arms — now load-bearing
-| Part | Why | ~$ |
-|---|---|---|
-| 2× Feetech STS3215 | **Shoulder lift.** MG90S will not hold 280g out on a lever arm — it will buzz, creep and strip. This is the one place stock servos are not enough | 36 |
-| FE-URT-1 servo bus adapter | Drives both STS servos off the Pi on one wire | 8 |
-| 2× 4mm carbon fibre tube + M3 hardware | Runs inside each printed arm. Printed PETG arms alone will creep under a static load over weeks | 8 |
-| Shoulder bearings (608 / flanged) | Takes the radial load off the servo shaft | 8 |
+| 2× Feetech STS3215 *(counted in swaps above)* | Shoulder lift. MG90S will buzz, creep and strip under 300g on a lever arm | — |
+| 2× 4mm carbon fibre tube + M3 hardware | Runs inside each printed arm. PETG alone creeps under sustained load over weeks | 8 |
+| Shoulder bearings (flanged) | Takes radial load off the servo shaft | 8 |
+| 2× spring plunger detent | **The arms lock into the raised position mechanically.** The servo lifts; the detent holds. A servo holding 300g static all day is a servo you replace | 8 |
+| M3 bolt + nyloc pivots for elbow/wrist | Replaces the pressure-fit joints so you can set friction and it stays set | 4 |
 
 > **Sync the arms or they fight each other.** Two arms holding one rigid screen is a
-> closed loop — if the servos disagree by two degrees they lever against each other
-> until something strips. Simplest fix that costs nothing: **drive one arm, let the
-> other idle on a free pivot**, and let the screen's own hand joints self-align.
+> closed kinematic loop — if the servos disagree by two degrees they lever against
+> each other until something strips. Free fix: **drive one arm, let the other idle
+> on a free pivot**, and let the wrist joints self-align.
 
-### Head, vision and sensing
-| Part | Why | ~$ |
-|---|---|---|
-| Camera | **You already have this — no purchase.** See the caveat below | 0 |
-| 7× MG90S micro servo | Eyes, head pan, neck. Exactly his stock list, so his code drives them unchanged | 20 |
-| PCA9685 I²C servo board | Same — what his build expects | 10 |
-| BNO085 IMU | Pick-up/tilt detection **and** the digital angle gauge | 20 |
+### 2d. Light
 
-> **Camera caveat:** if what you have is a generic USB webcam, it's fine for presence
-> and framing, but it is fixed-focus — and that **kills the magnifier feature** in
-> `CAPABILITIES.md`, which needs to focus at 5–10cm. If the magnifier matters, budget
-> **$35 for a Pi Camera Module 3 Wide** (listed under Optional). If it doesn't, the
-> camera you have is genuinely fine and this line stays $0.
-
-### Light
 | Part | Why | ~$ |
 |---|---|---|
 | COB LED ring + driver | Coaxial with the lens, so it lights exactly what the camera films — how borescopes do it | 8 |
-| 3W high-CRI LED flood + constant-current driver | **The flashlight.** Aimed with the head, switchable from the screen. High-CRI matters: cheap cool-white LEDs make fluid colours unreadable, and telling ATF from coolant by colour is a real diagnostic | 10 |
-| 2× MOSFET driver module | The Pi's GPIO cannot source LED current. Don't skip these | 6 |
-| Detachable magnetic COB work light | Docks on the magnetic tray, comes off in your hand when you need to get under something the robot can't reach. Zero integration, zero software, genuinely the most-used light on the robot | 12 |
+| 3W high-CRI LED flood + constant-current driver | **The flashlight.** Aimed with the head, switched from the screen. High-CRI matters: cheap cool-white makes fluid colours unreadable, and telling ATF from coolant by colour is a real diagnostic | 10 |
+| 2× MOSFET driver module | Pi GPIO cannot source LED current. Don't skip these | 6 |
+| Detachable magnetic COB work light | Docks on the parts tray, comes off in your hand for where the robot can't reach. Zero integration, zero software, and probably the most-used light on the machine | 12 |
 
-> Two lights, two jobs: the ring is for **what the camera sees**, the flood is for
-> **what you see**. Wiring them to one switch would make both worse.
+> Two fixed lights, two jobs: the ring is for **what the camera sees**, the flood is
+> for **what you see**. One switch for both would make both worse.
 
-### Drivetrain
+### 2e. Sensing, audio and input — all additions
+
 | Part | Why | ~$ |
 |---|---|---|
-| 2× 12V geared motor, 100–150RPM, ⌀37mm | His printed treads are designed around this exact motor. Substituting means re-CADing the drive sprockets | 30 |
-| Motor driver, 12V / 3A continuous | Sized for the above. Skip the L298N | 12 |
-
-### Power
-| Part | Why | ~$ |
-|---|---|---|
-| 3S2P 18650 pack + BMS + holder | **12V, not the 7.4V in v1** — the geared motors need it. ~38Wh | 40 |
-| Buck converters 12V→5V/5A + 12V→6V/5A + bulk caps | **Separate rails.** Servo inrush browning out the Pi is the #1 killer of Pi robots | 18 |
-| MAX17048 fuel gauge | So it knows when it's tired | 6 |
-
-### Sound and input
-| Part | Why | ~$ |
-|---|---|---|
-| I2S mic (INMP441) | Mount it high in the head, away from motor whine | 8 |
-| MAX98357A I2S amp + 5W speaker | **Buy the good speaker.** Chirps sound fine on a cheap driver; speech does not | 15 |
-| Rubber push-to-talk button | Hit it with a knuckle. Garages are loud and voice will fail sometimes | 4 |
+| BNO085 IMU | Pick-up/tilt detection **and** the digital angle gauge | 20 |
 | 3× VL53L1X ToF | One forward, two down at the track nose for cliff detection | 24 |
+| I²S mic (INMP441) | Mount it high in the head, away from motor whine | 8 |
+| Rubber push-to-talk button | Hit it with a knuckle. Garages are loud and voice will fail sometimes | 4 |
+| MAX17048 fuel gauge | Replaces his resistor divider. So it knows when it's tired | 6 |
 
-### Body
+### 2f. Storage and body — all additions
+
 | Part | Why | ~$ |
 |---|---|---|
+| 256GB USB SSD **or** A2 microSD | Manual page images run ~400MB per manual. Not the 32GB card from a starter kit | 25 |
 | Neodymium magnets — tray + sweeper strip | Parts tray on top; removable sled underneath that collects dropped screws | 10 |
-| Rear counterweight (steel/lead shot) | He holds 280g out front on tracks. Move the CG back or he noses over on a ramp | 5 |
-| Bearings, M3 hardware, JST connectors, wire | **Connectors, not solder joints** — every soldered wire is one you must desolder to change anything | 30 |
-| PETG + TPU filament, ~3kg | **310 parts.** This is not the 1kg spool you have. Body in PETG, track pads in TPU | 60 |
-
-### Core subtotal — **≈ $584**
+| Rear counterweight (steel/lead shot) | 300g held out front on tracks wants to nose over on a ramp | 5 |
+| JST connectors, wire, misc bearings | **Connectors, not solder joints** — every soldered wire is one you must desolder to change anything | 30 |
+| PETG + TPU filament, ~3kg | **310 parts.** This is not the 1kg spool you have. Body PETG, track pads TPU | 60 |
 
 ---
 
-## Spares — buy these too (~$48)
-
-You *will* strip a servo horn and burn a driver. If the replacement is three weeks
-out, you lose three weeks. This is the best money in the build.
-
-| Part | ~$ |
-|---|---|
-| Spare STS3215 (the shoulder — highest-load part on the robot) | 18 |
-| 2× spare MG90S | 6 |
-| 2× spare motor driver | 12 |
-| 2× spare buck converter | 12 |
-
-*(The spare DSI ribbon is already in the core list. It's not optional.)*
-
----
-
-## Optional
-
-| Part | Why | ~$ |
-|---|---|---|
-| Pi Camera Module 3 Wide | **Only if you want the magnifier.** Autofocus is what makes it an inspection camera rather than a webcam | 35 |
-| ELM327 Bluetooth OBD-II dongle | Read trouble codes, then show the matching manual page. Best value-per-dollar upgrade available. **1996+ vehicles only** | 15 |
-| Hailo-8L AI HAT | On-device vision for v2. The Pi's PCIe slot stays free for it | 70 |
-
----
-
-## Totals
+# Totals
 
 | | ~$ |
 |---|---|
-| Core | 584 |
-| + Spares | 632 |
-| + Camera Module 3 (if you want the magnifier) | 667 |
-| + OBD-II dongle | 682 |
+| Stock parts we keep (§1) | 115 |
+| Swaps (§2a) | 182 |
+| Screen + ribbon path (§2b) | 76 |
+| Arms (§2c) | 28 |
+| Light (§2d) | 36 |
+| Sensing, audio, input (§2e) | 62 |
+| Storage and body (§2f) | 130 |
+| **Core total** | **≈ 629** |
 
-### Where this differs from v1's $495
+### Spares — buy these too (~$42)
 
-| Change | Δ |
+You *will* strip a servo horn and burn a driver. Three weeks of shipping in week 10
+loses you the project. Best money in the build.
+
+| Part | ~$ |
 |---|---|
-| 7in screen → 5in | −20 |
-| Belly hinge hardware deleted (no belly screen) | −6 |
-| N20 motors + 2S pack → 12V geared motors + 3S pack | +25 |
-| Arms made structural (2× STS3215, carbon, bearings) | +28 |
-| DSI ribbon + spare, screen carrier, magnetic dock | +26 |
-| The flashlight and its drivers | +28 |
-| Arduino Uno + shield (his firmware) | +25 |
-| Filament 1kg → 3kg (310 parts) | +30 |
-| Camera (already owned) | −35 |
-| Rear counterweight | +5 |
+| Spare STS3215 (highest-load part on the robot) | 18 |
+| 2× spare motor driver | 12 |
+| 2× spare buck converter | 12 |
+| *2× spare MG90S* | *free — the two the shoulders displaced* |
+| *Spare DSI ribbon* | *already in the core list. Not optional* |
 
-The build got *more* expensive and *less* risky. That's the trade we chose.
+### Optional
+
+| Part | Why | ~$ |
+|---|---|---|
+| Pi Camera Module 3 Wide | **Only if you want the magnifier.** Your USB camera is fixed-focus, and the magnifier needs to focus at 5–10cm | 35 |
+| ELM327 Bluetooth OBD-II dongle | Read trouble codes, then show the matching manual page. Best value-per-dollar upgrade available. **1996+ vehicles only** | 15 |
+| Hailo-8L AI HAT | On-device vision for v2. The Pi's PCIe slot stays free for it | 70 |
+| 1.3in OLED (his part) | Rear-mounted battery/status readout. Skipped, but it's $8 and it's a nice touch | 8 |
+
+### Running totals
+
+| | ~$ |
+|---|---|
+| Core | 629 |
+| + Spares | 671 |
+| + Camera Module 3 (if you want the magnifier) | 706 |
+| + OBD-II dongle | 721 |
+
+**The honest drift:** stock is $233. We're at $629 — we have roughly tripled it.
+Where it went, in order: the screen and its cable path ($76), the Pi 5 and storage
+($85), 3kg of filament ($60), sensing we added that he never had ($62), lighting
+($36), and the arms becoming structural ($72 including the servo swap). Every one of
+those traces to a decision in `CONCEPT.md`. None of it is padding — but $629 is the
+number to take to the group, not $400.
 
 ---
 
-## The three things most likely to go wrong
+# The three things most likely to go wrong
 
-1. **The ribbon cable across the shoulder.** Mitigated with a twist route and a spare. Consider the Pi-behind-the-screen layout instead.
-2. **The arms sagging or the servos stripping.** Mitigated with carbon spars and STS3215s — but *measure the actual finished screen assembly weight before you trust this list*. If it comes in over ~350g, the arms need a mechanical rest position they lock into, not a servo holding load all day.
-3. **A month of printing.** 310 parts, largest at 14h. This starts week 1, in parallel with everything else. It is not a week-4 activity.
+1. **The ribbon cable across the shoulder.** Twist route, buy the spare, or move the Pi onto the screen carrier and stop crossing the joint with display signals at all.
+2. **The arms.** The spring detents are what make this survivable — a servo must never be the thing holding the screen up. **Weigh your finished carrier before you trust the STS3215 sizing.** Over ~400g and the arm geometry needs rethinking, which is cheap now and a two-week teardown in week 9.
+3. **A month of printing.** 310 parts, largest at 14h each, starting week 1 in parallel with everything else.
 
 ---
 
-## Software (all free)
+# Software (all free)
 
 Chillibasket's Arduino sketch + Python control stack (motion — inherited) ·
 Python + asyncio · Chromium kiosk for the screen · `yt-dlp` + `mpv` (video) ·
-`picamera2` or `opencv` (camera) · `sqlite` + a local embedding model (retrieval) ·
+`opencv` / `picamera2` (camera) · `sqlite` + a local embedding model (retrieval) ·
 `pymupdf` + `tesseract` (manual ingest) · Claude API (~$4/month — see `LLM.md`) ·
 optional `piper` (local TTS), `openWakeWord` + `vosk` (voice)
