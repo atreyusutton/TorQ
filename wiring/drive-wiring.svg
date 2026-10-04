@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="560" font-family="Menlo, Consolas, monospace" viewBox="0 0 960 560" role="img" aria-label="Wiring diagram: battery through a switch and fuse to a terminal block, which feeds a 5V buck converter powering the Raspberry Pi 5 and the Motor Shield's 12V input. The Pi connects to the Arduino Uno by USB. Shield channel A drives the left track motor and channel B the right.">
+      <rect width="960" height="560" fill="#ffffff"/>
+      <g fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <!-- battery to switch/fuse -->
+        <path d="M180 270 H200" stroke="#c8302b"/>
+        <path d="M180 290 H200" stroke="#1b2129"/>
+        <!-- switch/fuse to terminal block -->
+        <path d="M300 270 H340" stroke="#c8302b"/>
+        <path d="M300 290 H340" stroke="#1b2129"/>
+        <!-- terminal block up to buck -->
+        <path d="M360 230 V100 H440" stroke="#c8302b"/>
+        <path d="M388 230 V120 H440" stroke="#1b2129"/>
+        <!-- buck to Pi -->
+        <path d="M580 100 H640" stroke="#d97300"/>
+        <path d="M580 120 H640" stroke="#1b2129"/>
+        <!-- terminal block down to shield -->
+        <path d="M388 330 V420 H480" stroke="#1b2129"/>
+        <path d="M360 330 V440 H480" stroke="#c8302b"/>
+        <!-- USB Pi to Uno -->
+        <path d="M700 170 V360" stroke="#2b66c9" stroke-width="4"/>
+        <!-- channel A to left motor -->
+        <path d="M720 395 H780 V292 H820" stroke="#23885a"/>
+        <path d="M720 410 H795 V308 H820" stroke="#23885a"/>
+        <!-- channel B to right motor -->
+        <path d="M720 465 H820" stroke="#23885a"/>
+        <path d="M720 480 H820" stroke="#23885a"/>
+      </g>
+
+      <!-- capacitor at shield input -->
+      <g stroke="#1b2129" stroke-width="2" fill="none">
+        <path d="M440 420 V404 M440 440 V456"/>
+      </g>
+      <text x="434" y="402" text-anchor="end" font-size="10" fill="#5a6573">1000µF</text>
+
+      <g fill="#ffffff" stroke="#1b2129" stroke-width="1.5" >
+        <rect x="20" y="225" width="160" height="110" rx="4"/>
+        <rect x="200" y="250" width="100" height="60" rx="4"/>
+        <rect x="340" y="230" width="70" height="100" rx="4"/>
+        <rect x="440" y="70" width="140" height="80" rx="4"/>
+        <rect x="640" y="50" width="180" height="120" rx="4"/>
+        <rect x="480" y="360" width="240" height="170" rx="4"/>
+        <rect x="820" y="270" width="125" height="60" rx="4"/>
+        <rect x="820" y="440" width="125" height="60" rx="4"/>
+      </g>
+
+      <g fill="#1b2129" font-size="12.5">
+        <text x="100" y="256" text-anchor="middle" font-weight="500">Battery pack</text>
+        <text x="100" y="276" text-anchor="middle" fill="#5a6573" font-size="11">3S2P 18650</text>
+        <text x="100" y="292" text-anchor="middle" fill="#5a6573" font-size="11">+ 20A BMS</text>
+        <text x="100" y="316" text-anchor="middle" fill="#5a6573" font-size="11">10.8–12.6V · XT60</text>
+
+        <text x="250" y="276" text-anchor="middle" font-weight="500">Switch</text>
+        <text x="250" y="294" text-anchor="middle" fill="#5a6573" font-size="11">+ 15A fuse</text>
+
+        <text x="375" y="276" text-anchor="middle" font-weight="500" font-size="11">Term.</text>
+        <text x="375" y="292" text-anchor="middle" font-weight="500" font-size="11">block</text>
+
+        <text x="510" y="100" text-anchor="middle" font-weight="500">Buck</text>
+        <text x="510" y="118" text-anchor="middle" fill="#5a6573" font-size="11">12V → 5V / 5A</text>
+
+        <text x="730" y="80" text-anchor="middle" font-weight="500">Raspberry Pi 5</text>
+        <text x="730" y="100" text-anchor="middle" fill="#5a6573" font-size="11">5V in: USB-C</text>
+        <text x="730" y="116" text-anchor="middle" fill="#5a6573" font-size="11">web app + camera</text>
+        <text x="730" y="158" text-anchor="middle" fill="#5a6573" font-size="11">USB-A port ↓</text>
+
+        <text x="600" y="384" text-anchor="middle" font-weight="500">Motor Shield R3</text>
+        <text x="600" y="400" text-anchor="middle" fill="#5a6573" font-size="11">stacked on Arduino Uno</text>
+        <text x="492" y="424" fill="#5a6573" font-size="10.5">GND</text>
+        <text x="492" y="444" fill="#5a6573" font-size="10.5">Vin</text>
+        <text x="710" y="399" text-anchor="end" fill="#5a6573" font-size="10.5">A+</text>
+        <text x="710" y="414" text-anchor="end" fill="#5a6573" font-size="10.5">A−</text>
+        <text x="710" y="469" text-anchor="end" fill="#5a6573" font-size="10.5">B+</text>
+        <text x="710" y="484" text-anchor="end" fill="#5a6573" font-size="10.5">B−</text>
+        <text x="600" y="466" text-anchor="middle" fill="#c8302b" font-size="10.5" font-weight="500">CUT "Vin Connect"</text>
+        <text x="600" y="480" text-anchor="middle" fill="#c8302b" font-size="10.5" font-weight="500">jumper (underside)</text>
+        <text x="600" y="514" text-anchor="middle" fill="#5a6573" font-size="10">A: D12 dir · D3 pwm · D9 brk</text>
+        <text x="600" y="526" text-anchor="middle" fill="#5a6573" font-size="10">B: D13 dir · D11 pwm · D8 brk</text>
+
+        <text x="882" y="296" text-anchor="middle" font-weight="500">Left track</text>
+        <text x="882" y="314" text-anchor="middle" fill="#5a6573" font-size="11">12V ⌀37mm</text>
+        <text x="882" y="466" text-anchor="middle" font-weight="500">Right track</text>
+        <text x="882" y="484" text-anchor="middle" fill="#5a6573" font-size="11">12V ⌀37mm</text>
+      </g>
+
+      <!-- wire labels -->
+      <g font-size="10.5" fill="#5a6573">
+        <text x="400" y="92">12V</text>
+        <text x="610" y="92" text-anchor="middle" fill="#d97300">5V</text>
+        <text x="710" y="250">USB-A → USB-B</text>
+        <text x="710" y="265">serial commands</text>
+        <text x="710" y="280">+ 5V for the Uno</text>
+        <text x="270" y="430" text-anchor="middle">12V motor supply</text>
+        <text x="270" y="444" text-anchor="middle">to shield screw terminal</text>
+        <text x="270" y="458" text-anchor="middle" fill="#5a6573">(bypassing the buck)</text>
+      </g>
+    </svg>
