@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TorQ Dashboard</title>
+<style>
+  :root {
+    --bg: #111418; --panel: #1b2027; --text: #e6e9ee; --muted: #8a94a3;
+    --ok: #3ccf7a; --warn: #f2c14e; --bad: #ef5b5b; --blue: #5aa7ff; --border: #2a313b;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 14px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  header { display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+           border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  h1 { font-size: 18px; margin: 0 8px 0 0; letter-spacing: .5px; }
+  .pill { padding: 3px 10px; border-radius: 999px; background: var(--panel);
+          border: 1px solid var(--border); font-size: 12px; white-space: nowrap; }
+  .pill.ok { border-color: var(--ok); color: var(--ok); }
+  .pill.warn { border-color: var(--warn); color: var(--warn); }
+  .pill.bad { border-color: var(--bad); color: var(--bad); }
+  #mode { font-weight: 600; text-transform: uppercase; }
+  main { display: grid; grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr); gap: 16px; padding: 16px; }
+  @media (max-width: 800px) { main { grid-template-columns: 1fr; } }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 12px; }
+  .camera { position: relative; aspect-ratio: 4 / 3; background: #000; border-radius: 8px;
+            overflow: hidden; display: grid; place-items: center; color: var(--muted); }
+  .camera img { width: 100%; height: 100%; object-fit: contain; }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin: 0 0 8px; }
+  dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 0; }
+  dt { color: var(--muted); } dd { margin: 0; font-variant-numeric: tabular-nums; }
+  .keys { display: grid; grid-template-columns: repeat(3, 44px); gap: 6px; justify-content: center; margin: 8px 0; }
+  .key { height: 44px; border-radius: 8px; border: 1px solid var(--border); display: grid; place-items: center;
+         font-weight: 600; color: var(--muted); user-select: none; }
+  .key.on { background: var(--blue); color: #fff; border-color: var(--blue); }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  button { background: var(--panel); color: var(--text); border: 1px solid var(--border);
+           border-radius: 8px; padding: 8px 12px; font: inherit; cursor: pointer; }
+  button.danger { border-color: var(--bad); color: var(--bad); }
+  button.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .speed span { display: inline-block; width: 26px; text-align: center; border-radius: 6px; padding: 2px 0;
+                border: 1px solid var(--border); color: var(--muted); }
+  .speed span.on { border-color: var(--blue); color: var(--blue); }
+  .help { color: var(--muted); font-size: 12px; margin-top: 8px; }
+  .help kbd { border: 1px solid var(--border); border-radius: 4px; padding: 0 4px; font-size: 11px; }
+  #events { list-style: none; margin: 0; padding: 0; max-height: 220px; overflow-y: auto;
+            font: 12px/1.5 ui-monospace, Menlo, monospace; color: var(--muted); }
+  .side { display: flex; flex-direction: column; gap: 16px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>TorQ</h1>
+  <span id="mode" class="pill">connecting</span>
+  <span id="link" class="pill">dashboard offline</span>
+  <span id="arduino" class="pill">drive: ?</span>
+  <span id="rtt" class="pill">ping –</span>
+</header>
+
+<main>
+  <section class="panel">
+    <div class="camera" id="camera"><span id="camera-msg">No camera stream</span></div>
+  </section>
+
+  <div class="side">
+    <section class="panel">
+      <h2>Drive</h2>
+      <div class="keys">
+        <span></span><span class="key" data-key="w">W</span><span></span>
+        <span class="key" data-key="a">A</span><span class="key" data-key="s">S</span><span class="key" data-key="d">D</span>
+      </div>
+      <div class="speed" id="speed">Speed:
+        <span data-level="1">1</span><span data-level="2">2</span><span data-level="3">3</span><span data-level="4">4</span><span data-level="5">5</span>
+      </div>
+      <div class="row">
+        <button id="btn-manual">Manual: off</button>
+        <button id="btn-stop">Stop</button>
+        <button id="btn-estop" class="danger">E-STOP</button>
+        <button id="btn-reset" hidden>Reset E-stop</button>
+      </div>
+      <p class="help">
+        <kbd>W</kbd><kbd>S</kbd> drive, <kbd>A</kbd><kbd>D</kbd> turn, hold <kbd>Shift</kbd> for slow,
+        <kbd>1</kbd>–<kbd>5</kbd> speed, <kbd>Space</kbd> stop, <kbd>M</kbd> manual,
+        <kbd>Esc</kbd> E-stop, <kbd>R</kbd> reset. Driving stops when you let go or leave this tab.
+      </p>
+    </section>
+
+    <section class="panel">
+      <h2>Robot</h2>
+      <dl>
+        <dt>Pi address</dt><dd id="t-addr">–</dd>
+        <dt>CPU temp</dt><dd id="t-temp">–</dd>
+        <dt>Supply</dt><dd id="t-volts">–</dd>
+        <dt>Wi-Fi</dt><dd id="t-wifi">–</dd>
+        <dt>Motor PWM</dt><dd id="t-pwm">–</dd>
+        <dt>Motor current</dt><dd id="t-ma">–</dd>
+      </dl>
+    </section>
+
+    <section class="panel">
+      <h2>Events</h2>
+      <ul id="events"></ul>
+    </section>
+  </div>
+</main>
+
+<script src="/static/drive.js"></script>
+</body>
+</html>
