@@ -62,7 +62,14 @@ class Mic:
 
 
 class Speaker:
-    """Plays a stream of 16-bit mono PCM through aplay."""
+    """Plays a stream of 16-bit mono PCM through aplay.
+
+    Audio arrives faster than real time. Writes go through a queue and a
+    separate feeder task, so callers (the WebSocket receive loop) never block
+    on the speaker; blocking there would stall keep-alive pings and drop the link.
+    """
+
+    _END = None  # queue sentinel: close stdin after what's queued
 
     def __init__(self, device: str, on_done: Callable[[], Awaitable[None]],
                  card: str | None = None, volume: int = MAX_VOLUME) -> None:
@@ -70,6 +77,8 @@ class Speaker:
         self._on_done = on_done
         self._card, self._volume = card, volume
         self._proc: asyncio.subprocess.Process | None = None
+        self._queue: asyncio.Queue[bytes | None] | None = None
+        self._feeder: asyncio.Task | None = None
         self._waiter: asyncio.Task | None = None
 
     @property
@@ -82,11 +91,24 @@ class Speaker:
             # The USB speaker resets on power dips and comes back at its own
             # default volume, so re-apply ours before every utterance.
             await set_volume(self._card, self._volume)
-        self._proc = await asyncio.create_subprocess_exec(
+        proc = await asyncio.create_subprocess_exec(
             "aplay", "-q", "-D", self.device, "-f", "S16_LE", "-r", str(rate), "-c", "1", "-t", "raw",
             stdin=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE,
         )
-        self._waiter = asyncio.create_task(self._wait(self._proc))
+        self._proc = proc
+        self._queue = asyncio.Queue()
+        self._feeder = asyncio.create_task(self._feed(proc, self._queue))
+        self._waiter = asyncio.create_task(self._wait(proc))
+
+    async def _feed(self, proc: asyncio.subprocess.Process, queue: asyncio.Queue) -> None:
+        assert proc.stdin is not None
+        try:
+            while (pcm := await queue.get()) is not self._END:
+                proc.stdin.write(pcm)
+                await proc.stdin.drain()
+            proc.stdin.close()
+        except (BrokenPipeError, ConnectionResetError) as exc:
+            log.warning("speaker pipe closed: %s", exc)
 
     async def _wait(self, proc: asyncio.subprocess.Process) -> None:
         rc = await proc.wait()
@@ -95,27 +117,24 @@ class Speaker:
             log.error("aplay exited %s: %s", rc, err)
         if self._proc is proc:
             self._proc = None
+            if self._feeder is not None:
+                self._feeder.cancel()
         await self._on_done()
 
     async def write(self, pcm: bytes) -> None:
-        proc = self._proc
-        if proc is None or proc.stdin is None:
-            return
-        try:
-            proc.stdin.write(pcm)
-            await proc.stdin.drain()
-        except (BrokenPipeError, ConnectionResetError) as exc:
-            log.warning("speaker pipe closed: %s", exc)
+        if self._proc is not None and self._queue is not None:
+            self._queue.put_nowait(pcm)
 
     async def end(self) -> None:
         """No more audio: let what's queued finish playing."""
-        proc = self._proc
-        if proc is not None and proc.stdin is not None and not proc.stdin.is_closing():
-            proc.stdin.close()
+        if self._proc is not None and self._queue is not None:
+            self._queue.put_nowait(self._END)
 
     async def cancel(self) -> None:
-        proc, waiter = self._proc, self._waiter
-        self._proc, self._waiter = None, None
+        proc, feeder, waiter = self._proc, self._feeder, self._waiter
+        self._proc, self._queue, self._feeder, self._waiter = None, None, None, None
+        if feeder is not None:
+            feeder.cancel()
         if proc is not None and proc.returncode is None:
             proc.kill()
         if waiter is not None:
