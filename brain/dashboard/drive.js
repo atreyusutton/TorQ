@@ -14,6 +14,8 @@
   let wasDriving = false;
   let status = null;
   let cameraFailedAt = 0;
+  let talking = false;
+  let lastChatKey = "";
 
   // ---- connection -------------------------------------------------------
 
@@ -84,9 +86,29 @@
   };
 
   // Capture phase on window: runs before buttons, scrolling, or Firefox's find-as-you-type.
+  const isTyping = (e) => {
+    const t = e.target;
+    return t instanceof HTMLElement && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable);
+  };
+
+  function setTalking(on) {
+    if (talking === on) return;
+    talking = on;
+    $("btn-talk").classList.toggle("active", on);
+    $("btn-talk").textContent = on ? "Listening…" : "Hold to talk";
+    send({ type: "talk", on });
+  }
+
   window.addEventListener("keydown", (e) => {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
+    // Typing in the chat box must never drive the robot. Esc still E-stops.
+    if (isTyping(e) && e.code !== "Escape") return;
     $("last-key").textContent = e.code || e.key;
+    if (e.code === "KeyT") {
+      e.preventDefault();
+      if (!e.repeat) setTalking(true);
+      return;
+    }
     const drive = DRIVE_KEYS[e.code];
     if (drive) {
       e.preventDefault();
@@ -118,6 +140,7 @@
   }, true);
 
   window.addEventListener("keyup", (e) => {
+    if (e.code === "KeyT") setTalking(false);
     const drive = DRIVE_KEYS[e.code];
     if (drive) {
       e.preventDefault();
@@ -140,8 +163,23 @@
   });
 
   // Losing focus means we can't see key releases: stop.
-  window.addEventListener("blur", releaseAll);
-  document.addEventListener("visibilitychange", () => { if (document.hidden) releaseAll(); });
+  window.addEventListener("blur", () => { releaseAll(); setTalking(false); });
+  document.addEventListener("visibilitychange", () => { if (document.hidden) { releaseAll(); setTalking(false); } });
+
+  // ---- talking ------------------------------------------------------------
+
+  $("btn-talk").addEventListener("pointerdown", (e) => { e.preventDefault(); setTalking(true); });
+  ["pointerup", "pointerleave", "pointercancel"].forEach((ev) =>
+    $("btn-talk").addEventListener(ev, () => setTalking(false)));
+  $("chat-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const text = $("chat-input").value.trim();
+    if (!text) return;
+    send({ type: "chat", text });
+    $("chat-input").value = "";
+  });
+  $("btn-hush").onclick = () => send({ type: "hush" });
+  $("btn-new-chat").onclick = () => send({ type: "new_chat" });
 
   $("btn-stop").onclick = releaseAll;
   $("btn-estop").onclick = () => { releaseAll(); send({ type: "estop" }); };
@@ -213,12 +251,34 @@
       cam.innerHTML = '<span>No camera stream</span>';
     }
 
+    setPill("claude", s.claude_ready ? "Claude ready" : "Claude: no API key", s.claude_ready ? "ok" : "bad");
+    $("job").textContent = s.job && s.job.vehicle
+      ? `Vehicle: ${s.job.vehicle}` + (s.job.notes.length ? `  ·  ${s.job.notes.length} note(s)` : "")
+      : "No vehicle set";
+    renderChat(s.chat || []);
+
     $("events").innerHTML = "";
     for (const ev of [...(s.events || [])].reverse()) {
       const li = document.createElement("li");
       li.textContent = `${new Date(ev.t * 1000).toLocaleTimeString()}  ${ev.text}`;
       $("events").appendChild(li);
     }
+  }
+
+  function renderChat(entries) {
+    const key = JSON.stringify(entries);
+    if (key === lastChatKey) return;   // avoid re-rendering 5x a second
+    lastChatKey = key;
+    const list = $("chat");
+    const atBottom = list.scrollHeight - list.scrollTop - list.clientHeight < 40;
+    list.innerHTML = "";
+    for (const m of entries) {
+      const li = document.createElement("li");
+      li.className = m.role + (m.done ? "" : " pending");
+      li.textContent = m.text;
+      list.appendChild(li);
+    }
+    if (atBottom) list.scrollTop = list.scrollHeight;
   }
 
   renderSpeed();

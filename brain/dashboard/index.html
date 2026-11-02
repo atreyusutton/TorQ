@@ -46,7 +46,20 @@
   .help kbd { border: 1px solid var(--border); border-radius: 4px; padding: 0 4px; font-size: 11px; }
   #events { list-style: none; margin: 0; padding: 0; max-height: 220px; overflow-y: auto;
             font: 12px/1.5 ui-monospace, Menlo, monospace; color: var(--muted); }
-  .side { display: flex; flex-direction: column; gap: 16px; }
+  .side, .left { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  #chat { list-style: none; margin: 0 0 10px; padding: 0; max-height: 320px; overflow-y: auto;
+          display: flex; flex-direction: column; gap: 8px; }
+  #chat li { padding: 8px 10px; border-radius: 10px; max-width: 85%; white-space: pre-wrap; overflow-wrap: anywhere; }
+  #chat li.user { align-self: flex-end; background: var(--blue); color: #fff; }
+  #chat li.torq { align-self: flex-start; background: #262c35; }
+  #chat li.system { align-self: center; color: var(--muted); font-size: 12px; background: none; }
+  #chat li.pending::after { content: " \2026"; color: var(--muted); }
+  .chat-row { display: flex; gap: 8px; }
+  .chat-row input { flex: 1; min-width: 0; background: var(--bg); color: var(--text); border: 1px solid var(--border);
+                    border-radius: 8px; padding: 8px 10px; font: inherit; }
+  #btn-talk { user-select: none; touch-action: none; }
+  #btn-talk.active { background: var(--bad); border-color: var(--bad); color: #fff; }
+  .job { color: var(--muted); font-size: 12px; margin-bottom: 8px; }
 </style>
 </head>
 <body>
@@ -56,12 +69,30 @@
   <span id="link" class="pill">dashboard offline</span>
   <span id="arduino" class="pill">drive: ?</span>
   <span id="rtt" class="pill">ping –</span>
+  <span id="claude" class="pill">Claude: ?</span>
 </header>
 
 <main>
-  <section class="panel">
-    <div class="camera" id="camera"><span id="camera-msg">No camera stream</span></div>
-  </section>
+  <div class="left">
+    <section class="panel">
+      <div class="camera" id="camera"><span id="camera-msg">No camera stream</span></div>
+    </section>
+
+    <section class="panel">
+      <h2>Talk to TorQ</h2>
+      <div class="job" id="job">No vehicle set</div>
+      <ul id="chat"></ul>
+      <form class="chat-row" id="chat-form" autocomplete="off">
+        <input id="chat-input" type="text" placeholder="Type a question, or hold T to talk" maxlength="2000">
+        <button type="submit">Send</button>
+        <button type="button" id="btn-talk">Hold to talk</button>
+      </form>
+      <div class="row">
+        <button type="button" id="btn-hush">Quiet</button>
+        <button type="button" id="btn-new-chat">New conversation</button>
+      </div>
+    </section>
+  </div>
 
   <div class="side">
     <section class="panel">
@@ -83,7 +114,7 @@
         <kbd>W</kbd><kbd>S</kbd> or <kbd>↑</kbd><kbd>↓</kbd> drive, <kbd>A</kbd><kbd>D</kbd> or <kbd>←</kbd><kbd>→</kbd> turn
         (or hold the boxes above), hold <kbd>Shift</kbd> for slow,
         <kbd>1</kbd>–<kbd>5</kbd> speed, <kbd>Space</kbd> stop, <kbd>M</kbd> manual,
-        <kbd>Esc</kbd> E-stop, <kbd>R</kbd> reset. Driving stops when you let go or leave this tab.
+        <kbd>Esc</kbd> E-stop, <kbd>R</kbd> reset, hold <kbd>T</kbd> to talk. Driving stops when you let go or leave this tab.
         Last key: <kbd id="last-key">–</kbd>
       </p>
     </section>
