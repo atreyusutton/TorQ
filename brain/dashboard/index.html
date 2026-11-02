@@ -32,7 +32,7 @@
   dt { color: var(--muted); } dd { margin: 0; font-variant-numeric: tabular-nums; }
   .keys { display: grid; grid-template-columns: repeat(3, 44px); gap: 6px; justify-content: center; margin: 8px 0; }
   .key { height: 44px; border-radius: 8px; border: 1px solid var(--border); display: grid; place-items: center;
-         font-weight: 600; color: var(--muted); user-select: none; }
+         font-weight: 600; color: var(--muted); user-select: none; cursor: pointer; touch-action: none; }
   .key.on { background: var(--blue); color: #fff; border-color: var(--blue); }
   .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
   button { background: var(--panel); color: var(--text); border: 1px solid var(--border);
@@ -80,9 +80,11 @@
         <button id="btn-reset" hidden>Reset E-stop</button>
       </div>
       <p class="help">
-        <kbd>W</kbd><kbd>S</kbd> drive, <kbd>A</kbd><kbd>D</kbd> turn, hold <kbd>Shift</kbd> for slow,
+        <kbd>W</kbd><kbd>S</kbd> or <kbd>↑</kbd><kbd>↓</kbd> drive, <kbd>A</kbd><kbd>D</kbd> or <kbd>←</kbd><kbd>→</kbd> turn
+        (or hold the boxes above), hold <kbd>Shift</kbd> for slow,
         <kbd>1</kbd>–<kbd>5</kbd> speed, <kbd>Space</kbd> stop, <kbd>M</kbd> manual,
         <kbd>Esc</kbd> E-stop, <kbd>R</kbd> reset. Driving stops when you let go or leave this tab.
+        Last key: <kbd id="last-key">–</kbd>
       </p>
     </section>
 

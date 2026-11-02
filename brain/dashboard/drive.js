@@ -75,39 +75,68 @@
     wasDriving = false;
   }
 
-  document.addEventListener("keydown", (e) => {
+  // Physical key positions (e.code), so layouts and browser shortcuts don't matter.
+  const DRIVE_KEYS = {
+    KeyW: "w", ArrowUp: "w",
+    KeyA: "a", ArrowLeft: "a",
+    KeyS: "s", ArrowDown: "s",
+    KeyD: "d", ArrowRight: "d",
+  };
+
+  // Capture phase on window: runs before buttons, scrolling, or Firefox's find-as-you-type.
+  window.addEventListener("keydown", (e) => {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
-    const k = e.key.toLowerCase();
-    if (["w", "a", "s", "d"].includes(k)) {
-      held.add(k);
-      slow = e.shiftKey;
+    $("last-key").textContent = e.code || e.key;
+    const drive = DRIVE_KEYS[e.code];
+    if (drive) {
       e.preventDefault();
+      e.stopPropagation();
+      held.add(drive);
+      slow = e.shiftKey;
       if (!e.repeat) tick();   // react on press without waiting for the next tick
-    } else if (k === "shift") {
+    } else if (e.code === "ShiftLeft" || e.code === "ShiftRight") {
       slow = true;
-    } else if (k === " ") {
+    } else if (e.code === "Space") {
       e.preventDefault();
       releaseAll();
-    } else if (k === "escape") {
+    } else if (e.code === "Escape") {
+      e.preventDefault();
       releaseAll();
       send({ type: "estop" });
-    } else if (k === "r" && !e.repeat) {
+    } else if (e.code === "KeyR" && !e.repeat) {
+      e.preventDefault();
       send({ type: "reset" });
-    } else if (k === "m" && !e.repeat) {
+    } else if (e.code === "KeyM" && !e.repeat) {
+      e.preventDefault();
       send({ type: "manual", on: !(status && status.manual) });
-    } else if (/^[1-5]$/.test(k)) {
-      speedLevel = Number(k);
+    } else if (/^Digit[1-5]$/.test(e.code)) {
+      e.preventDefault();
+      speedLevel = Number(e.code.slice(5));
       renderSpeed();
     }
     renderKeys();
-  });
+  }, true);
 
-  document.addEventListener("keyup", (e) => {
-    const k = e.key.toLowerCase();
-    held.delete(k);
-    if (k === "shift") slow = false;
+  window.addEventListener("keyup", (e) => {
+    const drive = DRIVE_KEYS[e.code];
+    if (drive) {
+      e.preventDefault();
+      held.delete(drive);
+    }
+    if (e.code === "ShiftLeft" || e.code === "ShiftRight") slow = false;
     renderKeys();
     tick();
+  }, true);
+
+  // On-screen keys: hold with mouse or touch.
+  document.querySelectorAll(".key").forEach((el) => {
+    const k = el.dataset.key;
+    const press = (e) => { e.preventDefault(); held.add(k); renderKeys(); tick(); };
+    const release = () => { if (held.delete(k)) { renderKeys(); tick(); } };
+    el.addEventListener("pointerdown", press);
+    el.addEventListener("pointerup", release);
+    el.addEventListener("pointerleave", release);
+    el.addEventListener("pointercancel", release);
   });
 
   // Losing focus means we can't see key releases: stop.
