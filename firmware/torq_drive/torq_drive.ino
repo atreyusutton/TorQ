@@ -261,9 +261,13 @@ void setup() {
 
 void loop() {
   wdt_reset();
-  unsigned long now = millis();
 
   readSerial();
+
+  // Read the clock after handling commands: a D command stamps lastDriveMs
+  // with millis(), and a 'now' taken earlier would make now - lastDriveMs
+  // underflow and trip the watchdog falsely.
+  unsigned long now = millis();
 
   if (!watchdogTripped && now - lastDriveMs > WATCHDOG_MS) {
     stopNow();
