@@ -44,9 +44,11 @@ class RobotState:
     def mode(self) -> Mode:
         if not self.body_connected or self.estop or self.drive_fault:
             return Mode.ERROR
+        if self.activity != Mode.IDLE:
+            return self.activity  # listening / thinking / speaking matter most to the user
         if self.manual:
             return Mode.MANUAL
-        return self.activity
+        return Mode.IDLE
 
     def camera_url(self) -> str | None:
         if not (self.body_connected and self.body_addr and self.camera_port):

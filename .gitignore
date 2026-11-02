@@ -17,3 +17,6 @@ venv/
 # runtime
 *.log
 captures/
+
+# local models, job notes
+data/

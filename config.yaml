@@ -23,3 +23,26 @@ motors:
   trim_right: 1.0
   command_timeout_ms: 300 # stop if the brain hasn't sent a drive command for this long
   resend_ms: 100          # how often the current drive command is repeated to the Arduino
+
+claude:
+  fast_model: claude-haiku-5-5     # everyday questions
+  smart_model: claude-sonnet-5-5   # diagnosis (and photos, later)
+  fast_effort: low
+  smart_effort: medium
+  max_tokens: 8000
+  max_tool_rounds: 6
+  # A question containing any of these goes to the smart model.
+  diagnostic_words: [why, diagnose, diagnosis, noise, sound, leak, smell, smoke, "won't", wont, "doesn't", misfire,
+                     "check engine", code, overheat, vibration, shake, stall, rough, grind, squeal, knock, problem, wrong]
+
+voice:
+  stt_model: small.en
+  stt_hint: "Car repair shop talk: lug nuts, torque spec, foot-pounds, newton meters, firing order, spark plugs, serpentine belt, MAF sensor, OBD2 code, alternator, caliper, rotor."
+  tts_voice: data/voices/en_US-lessac-medium.onnx
+  mic_device: plughw:CARD=C920     # on the Pi
+  mic_rate: 16000
+  speaker_device: plughw:CARD=UACDemoV10   # on the Pi: USB speaker, named directly (not via ~/.asoundrc)
+  speaker_card: UACDemoV10         # ALSA card name, for volume control
+  # Percent, hard-capped at 90. Loud audio makes the USB speaker brown out and reset
+  # (seen on battery power at 90%), so keep it lower until it has its own 5V supply.
+  speaker_volume: 70
