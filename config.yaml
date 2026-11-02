@@ -1,0 +1,25 @@
+# TorQ shared config. Read by the brain (Mac) and the body (Pi).
+
+brain:
+  ui_host: 127.0.0.1      # dashboard is only reachable from this Mac
+  ui_port: 8000
+  body_host: 0.0.0.0      # the Pi connects in on this port
+  body_port: 8765
+  ping_interval_s: 1.0
+
+body:
+  # Tried in order until one connects.
+  brain_urls:
+    - ws://192.168.3.1:8765/body            # Mac over Ethernet (Internet Sharing on en7)
+    - ws://Atreyus-Laptop.local:8765/body   # Mac over Wi-Fi
+  serial_port: /dev/serial/by-id/usb-Arduino__www.arduino.cc__0043_14531303434351B0A090-if00
+  camera_port: 8080       # ustreamer MJPEG stream on the Pi
+  telemetry_interval_s: 0.5
+
+motors:
+  max_pwm: 200            # hard cap, also programmed into the Arduino (0-255)
+  min_pwm: 60             # nonzero commands are lifted to at least this so tracks don't stall; tune on the floor
+  trim_left: 1.0          # multiply each side to make the robot drive straight; tune after the left motor swap
+  trim_right: 1.0
+  command_timeout_ms: 300 # stop if the brain hasn't sent a drive command for this long
+  resend_ms: 100          # how often the current drive command is repeated to the Arduino
