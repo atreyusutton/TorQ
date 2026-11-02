@@ -15,7 +15,7 @@
 - [ ] Replace stripped left gearmotor (Greartisan 12V 100RPM 37mm), rerun direction/current test
 - [ ] Tune `motors.min_pwm` and `trim_left`/`trim_right` on the floor
 - [ ] Wire 4 status LEDs, write `body/leds.py` (`--demo`, `--state`), drive from brain state
-- [ ] Add ANTHROPIC_API_KEY to .env (user), restart brain, test a real question
+- [x] API key in .env; real questions answered (Haiku ~1 s to first words, Sonnet for diagnosis)
 - [ ] Give the USB speaker its own 5V supply (it browns out and resets when loud); then raise volume from 70%
 - [ ] Wake word ("Hey TorQ") with listen/stop chirps
 - [ ] `take_photo` tool with vision (decide: full-res grab vs. ustreamer snapshot)
