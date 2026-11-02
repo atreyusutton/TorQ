@@ -32,7 +32,7 @@ const uint8_t DIR_B = 13, PWM_B = 11, BRAKE_B = 8, SENSE_B = A1;
 // Track mapping. Flip these if the robot drives or turns the wrong way.
 const bool LEFT_IS_CHANNEL_A = true;
 const bool INVERT_LEFT = false;
-const bool INVERT_RIGHT = false;
+const bool INVERT_RIGHT = true;  // right motor is mounted mirrored (verified 2026-11-01)
 
 const unsigned long WATCHDOG_MS = 300;
 const int DEFAULT_SPEED_LIMIT = 160;  // out of 255
