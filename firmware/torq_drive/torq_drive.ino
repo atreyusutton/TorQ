@@ -72,20 +72,24 @@ void setupMotor(Motor &m, bool isA, bool invert) {
   pinMode(m.dirPin, OUTPUT);
   pinMode(m.pwmPin, OUTPUT);
   pinMode(m.brakePin, OUTPUT);
-  analogWrite(m.pwmPin, 0);
   digitalWrite(m.brakePin, HIGH);
+  analogWrite(m.pwmPin, 255);  // brake engaged (see applyMotor)
 }
 
 void applyMotor(Motor &m) {
   if (m.current == 0) {
-    analogWrite(m.pwmPin, 0);
+    // On the Rev3 shield, BRAKE only shorts the motor while the L298P enable
+    // (the PWM pin) is high. With enable low the motor just coasts.
     digitalWrite(m.brakePin, HIGH);
+    analogWrite(m.pwmPin, 255);
     return;
   }
+  // Set speed and direction before releasing the brake, so leaving the
+  // braked state (enable at 255) never produces a full-power pulse.
   bool forward = (m.current > 0) != m.invert;
-  digitalWrite(m.brakePin, LOW);
-  digitalWrite(m.dirPin, forward ? HIGH : LOW);
   analogWrite(m.pwmPin, abs(m.current));
+  digitalWrite(m.dirPin, forward ? HIGH : LOW);
+  digitalWrite(m.brakePin, LOW);
 }
 
 void stopNow() {
