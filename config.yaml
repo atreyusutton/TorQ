@@ -45,4 +45,4 @@ voice:
   speaker_card: UACDemoV10         # ALSA card name, for volume control
   # Percent, hard-capped at 90. Loud audio makes the USB speaker brown out and reset
   # (seen on battery power at 90%), so keep it lower until it has its own 5V supply.
-  speaker_volume: 70
+  speaker_volume: 80
