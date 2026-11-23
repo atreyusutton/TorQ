@@ -10,20 +10,24 @@ You ask it a question while your hands are on a wrench ("what's the lug nut torq
 
 | Who | What |
 |---|---|
-| Diya and Spatika | The first version of the software, with everything running on the Raspberry Pi |
+| Diya and Spatika | The first version of the software: wake word, speech recognition, manual search and spoken answers, running on the Raspberry Pi |
 | Zach | The whole enclosure, printed in PLA |
 | Atreyu | Electronics and wiring, drive firmware, and the current software in this repo |
 
 ## Then and now
 
-The first version ran every process on the Raspberry Pi inside the robot. It proved the idea, but with everything on one small board a response took about 90 seconds.
+The first version, written by Diya and Spatika, proved the idea and did a lot: say "Hey TorQ", ask a question, and it searched the service manuals and answered out loud with the page it came from. Nearly all of it ran on the Raspberry Pi inside the robot: a Vosk wake word listening all the time, Whisper on the CPU, an embedding search over the manuals, and a Piper process started for each reply. Only the language model call left the board. On a 4 GB Pi a response took about 90 seconds.
 
-The current software asks what actually has to be on the robot. The Pi keeps the jobs that touch hardware. The heavy work runs on a laptop on the same network. Stopping the motors lives on an Arduino, so it does not depend on either computer being healthy. On Claude Haiku the robot now starts speaking in about 1 second.
+The current software asks what actually has to be on the robot. The Pi keeps the jobs that touch hardware. The speech models and the Claude loop run on a laptop on the same network. Stopping the motors lives on an Arduino, so it does not depend on either computer being healthy. On Claude Haiku the robot now starts speaking in about 1 second.
+
+The rewrite does not yet do everything the first version did: the wake word and the manual search with page numbers still need to be brought across.
 
 ```mermaid
 flowchart LR
-  subgraph then["Then: everything on the Pi, about 90 s per response"]
-    P1["Raspberry Pi 5<br/>microphone<br/>speech to text<br/>working out the answer<br/>text to speech<br/>camera<br/>motors"]
+  subgraph then["Then: nearly everything on the Pi, about 90 s per response"]
+    P1["Raspberry Pi 5, 4 GB<br/>Vosk wake word<br/>Whisper base.en on the CPU<br/>bge-small manual search<br/>Piper, started per reply<br/>drive scripts over SSH"]
+    C1["Cloud model<br/>reads the page, writes the answer"]
+    P1 <-- "HTTPS" --> C1
   end
   subgraph now["Now: about 1 s to first spoken words"]
     M["Mac, the brain<br/>Whisper speech-to-text<br/>Claude tool loop<br/>Piper text-to-speech<br/>job memory, dashboard"]
@@ -144,6 +148,6 @@ Dashboard keys: `W` `A` `S` `D` or the arrow keys to drive (hold), `Space` to st
 
 ## Not built yet
 
-Cited service-manual lookup, a `take_photo` tool with vision, drive tools for Claude, a wake word, and status LEDs. See `TODO.md`.
+A `take_photo` tool with vision, drive tools for Claude, and status LEDs. The wake word and cited service-manual lookup worked in the first version and are not yet in this one. See `TODO.md`.
 
 The original goals document is kept at `_archive/torq-manual.md`.
