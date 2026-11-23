@@ -1,0 +1,14 @@
+[Unit]
+Description=TorQ body (drive + link to brain)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=torq
+WorkingDirectory=/home/torq/torq
+ExecStart=/home/torq/torq/.venv/bin/python -m body.main
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

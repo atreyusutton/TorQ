@@ -1,0 +1,4 @@
+-r brain/requirements.txt
+-r body/requirements.txt
+pytest>=8,<9
+pytest-asyncio>=0.23,<2

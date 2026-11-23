@@ -1,0 +1,17 @@
+[Unit]
+Description=TorQ camera MJPEG stream (ustreamer)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=torq
+SupplementaryGroups=video
+ExecStart=/usr/bin/ustreamer \
+  --device=/dev/v4l/by-id/usb-046d_HD_Pro_Webcam_C920_BEB277AF-video-index0 \
+  --format=MJPEG --resolution=640x480 --desired-fps=15 \
+  --host=0.0.0.0 --port=8080 --persistent --drop-same-frames=30
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target
